@@ -1,12 +1,14 @@
 # Tung Phan
 # February 18, 2019
-# Reactive Contract Example
+# This module reads a strategy .npy file and creates a random trace
+# (of specified length)
+
+import sys
 import numpy as np
-filename = 'three_islands'
+filename = str(sys.argv[1])
 strategy_dict = np.load(filename+'.npy').item()
 
 # variables_to_collect = ['x1', 'y1', etc.] is an ordered tuple
-
 def random_run_from(init_state, max_steps, variables_to_collect):
     current_state = init_state
     steps = 0

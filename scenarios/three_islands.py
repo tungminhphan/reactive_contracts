@@ -1,9 +1,16 @@
+# Tung Phan
+# April 11, 2019
+# Animation for `Three Islands' Example
+
+import sys, os
+current_path = os.path.abspath('.')
+sys.path.append(current_path)
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.patches import Rectangle, Circle, RegularPolygon, Shadow
 import matplotlib as mpl
-import helpers.simulator
+from helpers import simulator
 
 fig = plt.figure()
 ax = fig.add_axes([0,0,1,1]) # get rid of white border
@@ -84,7 +91,6 @@ for i in range(0,1):
 for i in range(4,5):
     for j in range(3,4):
         orange.append((i,j))
-
 # sources
 orchid = []
 for i in range(2,3):

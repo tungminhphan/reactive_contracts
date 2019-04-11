@@ -1,12 +1,28 @@
 #!/bin/bash
+# specify the path to the slugs binary
 slugs="/home/tung/Desktop/slugs/src/slugs"
+# specify the path to the compiler for the structured slugs parser
 parse_slugs="/home/tung/Desktop/slugs/tools/StructuredSlugsParser/compiler.py"
-input=
-start=$(date +%s%N)
-$parse_slugs $input.structuredslugs > $input.slugsin
-$slugs --explicitStrategy $input.slugsin > $input.strat
-end=`date +%s%N`
-runtime=$((end-start))
-echo "Synthesized in $(($runtime/1000000)) milliseconds"
-python3 strategyParser.py
-python3 $input.py
+# define current directory
+dir=$(pwd)
+# define contract input directory
+input=$dir/contracts/AG
+
+simulate()
+{
+	python3 $dir/scenarios/three_islands.py $input
+}
+
+if [ $# -gt 0 ]; then
+	if [ $1 = "check" ]; then
+		start=$(date +%s%N)
+		$parse_slugs $input.structuredslugs > $input.slugsin
+		$slugs --explicitStrategy $input.slugsin > $input.strat
+		end=$(date +%s%N)
+		runtime=$((end-start))
+		echo "Synthesized in $(($runtime/1000000)) milliseconds"
+		python3 $dir/helpers/strategyParser.py $input
+	fi
+fi
+
+$(simulate)

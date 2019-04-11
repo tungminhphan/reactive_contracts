@@ -1,10 +1,13 @@
 # Tung Phan
 # February 18, 2019
-# Reactive Contract Example
+# This module parses a slugs strategy and converts it to .npy
+# format
+
 import numpy as np
+import sys
 from itertools import groupby
 
-filename = 'three_islands'
+filename = str(sys.argv[1])
 strategy_filename = filename + '.strat'
 raw_strat = open(strategy_filename).read()
 lines = raw_strat.split('State ')[1:]

@@ -1,0 +1,110 @@
+[INPUT]
+x1:0...4
+y1:0...4
+x2:0...4
+y2:0...4
+bridge
+box1:0...5
+carry1
+
+[OUTPUT]
+left1
+right1
+up1
+down1
+left2
+right2
+up2
+down2
+
+[ENV_INIT]
+x1=0
+y1=0
+x2=1
+y2=4
+! bridge
+box1=1
+!carry1
+
+[SYS_INIT]
+! left1
+! right1
+! up1
+! down1
+! left2
+! right2
+! up2
+! down2
+
+[ENV_TRANS]
+(x1!=1 | y1!=0) & (x1 !=3 | y1 != 3) -> (carry1' & carry1 | !carry1' & !carry1)
+(box1 != box1' & box1 != 5) -> (x1=1 & y1=0) | (x1=3 & y1 =3)
+
+# picking up at 1
+(x1=1 & y1=0 & !carry1 & box1=1) -> (box1'=0 & carry1')
+# dropping off at 1
+(x1=1 & y1=0 & carry1 & box1=0) -> (box1'=1 & !carry1')
+# dropping off at 5
+(x1=3 & y1=3 & carry1 & box1=0) -> (box1'=5 & !carry1')
+# expire in 1 step
+box1 = 5 -> (box1' = 1 | box1' = 5)
+
+[SYS_TRANS]
+# allow north, south, east, west movements only for robot 1
+(! up1' & ! down1' & ! right1') |  (! up1' & ! down1' &  ! left1') | (! up1'  &  ! right1' &  ! left1') | (! down1' & ! left1' & ! right1')
+
+# allow north, south, east, west movements only for robot 2
+(! up2' & ! down2' & ! right2') |  (! up2' & ! down2' &  ! left2') | (! up2'  &  ! right2' &  ! left2') | (! down2' & ! left2' & ! right2')
+
+# robot1 can't swim
+!(x1 = 0 & y1 = 2)
+!(x1 = 2 & y1 > 1 & y1 < 4)
+!(x1 > 2 & y1 < 3)
+# robot1 can't go over source
+!(x1 = 2 & y1 = 0)
+
+# robot2 can't swim
+!(x2 = 0 & y2 = 2)
+!(x2 = 2 & y2 > 1 & y2 < 4)
+!(x2 > 2 & y2 < 3)
+
+# the two robots should never collide
+x1 != x2 | y1 != y2
+# the two robots should never cross
+x1' != x2 | y1' != y2
+x1 != x2' | y1 != y2'
+# robots must use bridge
+!bridge -> (x2 != 1 | y2 != 2)
+!bridge -> (x1 != 1 | y1 != 2)
+
+[ENV_TRANS]
+# control of robot1
+x1>0 & left1 -> x1'+1=x1
+x1<4 & right1 -> x1'=x1+1
+y1>0 & down1 -> y1'+1=y1
+y1<4 & up1 -> y1'=y1+1
+(!left1 & !right1) -> x1'=x1
+(!up1 & !down1) -> y1'=y1
+
+# control of robot2
+x2>0 & left2 -> x2'+1=x2
+x2<4 & right2 -> x2'=x2+1
+y2>0 & down2 -> y2'+1=y2
+y2<4 & up2 -> y2'=y2+1
+(!left2 & !right2) -> x2'=x2
+(!up2 & !down2) -> y2'=y2
+
+# bridge behavior
+((x1 = 0 & y1 = 1) | (x2 = 0 & y2 = 1) | (x1 = 0 & y1 = 3) | (x2 = 0 & y2 = 3)) -> bridge'
+((x1 != 0 | y1 != 1) & (x2 != 0 | y2 !=1) & (x1 != 0 | y1 != 3) & (x2 != 0 | y2 != 3)) -> !bridge'
+
+[ENV_LIVENESS]
+box1 != 5
+
+[SYS_LIVENESS]
+# robot1
+box1 = 5 & x2 =4 & y2 =3
+
+# robot2
+x2=2 & y2=0
+x2=0 & y2=4

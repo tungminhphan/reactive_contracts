@@ -1,0 +1,12 @@
+#!/bin/bash
+slugs="/home/tung/Desktop/slugs/src/slugs"
+parse_slugs="/home/tung/Desktop/slugs/tools/StructuredSlugsParser/compiler.py"
+input=
+start=$(date +%s%N)
+$parse_slugs $input.structuredslugs > $input.slugsin
+$slugs --explicitStrategy $input.slugsin > $input.strat
+end=`date +%s%N`
+runtime=$((end-start))
+echo "Synthesized in $(($runtime/1000000)) milliseconds"
+python3 strategyParser.py
+python3 $input.py

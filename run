@@ -6,7 +6,7 @@ parse_slugs="/home/tung/Desktop/slugs/tools/StructuredSlugsParser/compiler.py"
 # define current directory
 dir=$(pwd)
 # define contract input directory
-input=$dir/contracts/AG
+input=$dir/contracts/AG_contract
 
 simulate()
 {

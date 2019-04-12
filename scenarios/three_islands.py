@@ -155,9 +155,9 @@ permanent_bridge = Rectangle((2*w, 4*h), w, h, color='brown', alpha=0.8)
 ax.add_patch(permanent_bridge)
 
 # add agents
-ego = RegularPolygon((w/2+w*0,h/2 + 1*h), 8, 0.7, fc='b', alpha=0.8)
+ego = RegularPolygon((w/2+w*0,h/2 + 1*h), 9, 0.8, fc='b', alpha=0.8)
 ax.add_patch(ego)
-ego2 = RegularPolygon((w/2+w*3,h/2+h*3), 10, 0.7, fc='r', alpha=0.8)
+ego2 = RegularPolygon((w/2+w*3,h/2+h*3), 9, 0.5, fc='m', alpha=0.8)
 ax.add_patch(ego2)
 
 # add buttons

@@ -1,2 +1,4 @@
 *.slugsin
+*.npy
 *.strat
+*__pycache__

@@ -18,21 +18,26 @@ assumptions['button1']  = r"""
 assumptions['button2']  = r"""
 [ENV_TRANS]
 # button2 behavior
-((x1 = 0 & y1 = 3) | (x2 = 0 & y2 = 3)) -> bridge'
+((x1=0 & y1=3) | (x2=0 & y2=3)) -> bridge'
 """
 assumptions['init'] = r"""
 [ENV_INIT]
-x1=1
-y1=0
-x2=0
-y2=0
+x1<=2
+y1<=1
+x2<=2
+y2<=1
 !bridge
-box1=1
-!carry1
+(box=0) | (box=1)
+carry1 -> (box=0)
+(box=0) -> carry1
 """
 guarantees['box_far'] = r"""
 [SYS_LIVENESS]
-box1 = 5
+box = 3
+"""
+guarantees['box_near'] = r"""
+[SYS_LIVENESS]
+box = 2
 """
 guarantees['ego2_far'] = r"""
 [SYS_LIVENESS]
@@ -49,9 +54,11 @@ x2=2 & y2=0
 outputfile.writelines(inputfile)
 outputfile.writelines(assumptions['init'])
 outputfile.writelines(assumptions['button1'])
-#outputfile.writelines(assumptions['button2'])
+outputfile.writelines(assumptions['button2'])
 outputfile.writelines(guarantees['ego2_recharge'])
 outputfile.writelines(guarantees['ego2_far'])
+outputfile.writelines(guarantees['ego2_near'])
+outputfile.writelines(guarantees['box_far'])
 
 inputfile.close()
 outputfile.close()

@@ -1,4 +1,5 @@
 *.slugsin
 *.npy
 *.strat
+*.swp
 *__pycache__

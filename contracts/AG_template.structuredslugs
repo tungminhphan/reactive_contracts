@@ -4,7 +4,7 @@ y1:0...4
 x2:0...4
 y2:0...4
 bridge
-box1:0...5
+box:0...3
 carry1
 
 [OUTPUT]
@@ -28,17 +28,22 @@ down2
 ! down2
 
 [ENV_TRANS]
-(x1!=1 | y1!=0) & (x1 !=3 | y1 != 3) -> (carry1' & carry1 | !carry1' & !carry1)
-(box1 != box1' & box1 != 5) -> (x1=1 & y1=0) | (x1=3 & y1 =3)
+# can't pick or or drop off unless at deposit locations
+(x1!=1 | y1!=0) & (x1!=3 | y1 != 3) & (x1!=1| y1!=4) -> (carry1' & carry1 | !carry1' & !carry1)
+# box only changes states as a consequence of being dropped off/picked up or expiration
+(box!=box' & box!=3 & box !=2) -> (x1=1 & y1=0) | (x1=3 & y1 =3) | (x1=1 & y1=4)
 
 # picking up at 1
-(x1=1 & y1=0 & !carry1 & box1=1) -> (box1'=0 & carry1')
+(x1=1 & y1=0 & !carry1 & box=1) -> (box'=0 & carry1')
 # dropping off at 1
-(x1=1 & y1=0 & carry1 & box1=0) -> (box1'=1 & !carry1')
-# dropping off at 5
-(x1=3 & y1=3 & carry1 & box1=0) -> (box1'=5 & !carry1')
+(x1=1 & y1=0 & carry1 & box=0) -> (box'=1 & !carry1')
+# dropping off at 2
+(x1=1 & y1=4 & carry1 & box=0) -> (box'=2 & !carry1')
+# dropping off at 3
+(x1=3 & y1=3 & carry1 & box=0) -> (box'=3 & !carry1')
 # expirable
-box1=5 -> (box1'=1 | box1'=5)
+box=3 -> (box'=1 | box'=3)
+box=2 -> (box'=1 | box'=2)
 
 [SYS_TRANS]
 # allow only one motion per step for robot 1
@@ -85,9 +90,13 @@ y2<4 & up2 -> y2'=y2+1
 (!left2 & !right2) -> x2'=x2
 (!up2 & !down2) -> y2'=y2
 
-# bridge won't be present when neither buttons are pressed
+# bridge won't be deployed when neither of the buttons are pressed
 ((x1 != 0 | y1 != 1) & (x2 != 0 | y2 !=1) & (x1 != 0 | y1 != 3) & (x2 != 0 | y2 != 3)) -> !bridge'
 
 [ENV_LIVENESS]
-box1 != 5
+box!=3
+box!=2
+
+[ENV_INIT]
+x1!=x2 | y1!=y2
 

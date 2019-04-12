@@ -16,7 +16,7 @@ fig = plt.figure()
 ax = fig.add_axes([0,0,1,1]) # get rid of white border
 plt.axis('equal')
 
-N = 5
+N = 5 # NxN gridworld
 X_lim = 10 # world size in pixels
 Y_lim = 10 # world size in pixels
 xs = np.linspace(0, X_lim, N+1)
@@ -116,8 +116,8 @@ house3 = RegularPolygon((w/2+w*2,h/2+h*0), 5, 0.5, fc='k', alpha=0.9)
 ax.add_patch(house3)
 
 # packages
-pack1 = Rectangle((0,0), w/3, h/3, fc='y', alpha=0.9)
-ax.add_patch(pack1)
+pack = Rectangle((0,0), w/3, h/3, fc='y', alpha=0.9)
+ax.add_patch(pack)
 #pack2 = RegularPolygon((w/2+w*4,h/2+h*3), 4, 0.5, fc='y', alpha=0.9)
 #ax.add_patch(pack2)
 
@@ -141,8 +141,8 @@ def interpolate_run(run, N, exceptions):
                     interpolated.append(tuple(interp))
     return interpolated
 
-vars_to_collect = ['x1', 'y1', 'x2', 'y2', 'bridge', 'box1']
-run = simulator.random_run_from(init_state='0',max_steps=100,variables_to_collect=vars_to_collect)
+vars_to_collect = ['x1', 'y1', 'x2', 'y2', 'bridge', 'box']
+run = simulator.random_run_from(init_state='0',max_steps=200,variables_to_collect=vars_to_collect)
 exceptions = {5}
 run = interpolate_run(run,10,exceptions)
 num_frames = len(run)
@@ -171,21 +171,23 @@ ax.add_patch(button2)
 #shadow2 = ax.add_patch(Shadow(button2, -0.06,-0.06))
 
 def animate(i):
-    x1,y1,x2,y2,bridge,box1 = run[i]
+    x1,y1,x2,y2,bridge,box = run[i]
     button1.set_alpha((1-bridge)/2+0.1)
     button2.set_alpha((1-bridge)/2+0.1)
 
     drawbridge.set_alpha(bridge)
     ego.xy = (x1*w+w/2,y1*h+h/2)
     ego2.xy = (x2*w+w/2,y2*h+h/2)
-    if box1 == 0:
-        pack1.xy = np.array(ego.xy)
-#        pack1.xy = np.array(ego.xy) + (-w/6,-h/6) # offset
-    elif box1 == 1:
-        pack1.xy = (2*w+w/4,0*h+h/4)
-    else:
-        pack1.xy = (4*w+w/4,3*h+h/4)
-    return drawbridge, ego, ego2, pack1, button1, button2
+    if box == 0:
+        pack.xy = np.array(ego.xy)
+#        pack.xy = np.array(ego.xy) + (-w/6,-h/6) # offset
+    elif box == 1:
+        pack.xy = (2*w+w/4,0*h+h/4)
+    elif box == 2:
+        pack.xy = (0*w+w/4,4*h+h/4)
+    elif box == 3:
+        pack.xy = (4*w+w/4,3*h+h/4)
+    return drawbridge, ego, ego2, pack, button1, button2
 
 save_video = False
 ani = animation.FuncAnimation(fig, animate, frames=num_frames,

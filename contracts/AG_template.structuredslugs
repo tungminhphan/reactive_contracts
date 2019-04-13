@@ -5,7 +5,6 @@ x2:0...4
 y2:0...4
 bridge
 box:0...3
-carry1
 
 [OUTPUT]
 left1
@@ -16,6 +15,7 @@ left2
 right2
 up2
 down2
+toggle
 
 [SYS_INIT]
 ! left1
@@ -29,18 +29,23 @@ down2
 
 [ENV_TRANS]
 # can't pick or or drop off unless at deposit locations
-(x1!=1 | y1!=0) & (x1!=3 | y1 != 3) & (x1!=1| y1!=4) -> (carry1' & carry1 | !carry1' & !carry1)
+#!(x1=1 & y1=0) & !(x1=3 & y1=3) & !(x1=1 | y1=4) -> (toggle' & toggle | !toggle' & !toggle)
+## slower??
+##(box!=box' & box!=3 & box!=2) -> (toggle' & !toggle | (!toggle' & toggle))
 # box only changes states as a consequence of being dropped off/picked up or expiration
-(box!=box' & box!=3 & box !=2) -> (x1=1 & y1=0) | (x1=3 & y1 =3) | (x1=1 & y1=4)
+# faster??
+
+(box!=box' & box!=3 & box !=2) -> toggle
 
 # picking up at 1
-(x1=1 & y1=0 & !carry1 & box=1) -> (box'=0 & carry1')
+(x1=1 & y1=0 & toggle & box=1) -> (box'=0)
+
 # dropping off at 1
-(x1=1 & y1=0 & carry1 & box=0) -> (box'=1 & !carry1')
+(x1=1 & y1=0 & toggle & box=0) -> (box'=1)
 # dropping off at 2
-(x1=1 & y1=4 & carry1 & box=0) -> (box'=2 & !carry1')
+(x1=1 & y1=4 & toggle & box=0) -> (box'=2)
 # dropping off at 3
-(x1=3 & y1=3 & carry1 & box=0) -> (box'=3 & !carry1')
+(x1=3 & y1=3 & toggle & box=0) -> (box'=3)
 # expirable
 box=3 -> (box'=1 | box'=3)
 box=2 -> (box'=1 | box'=2)
@@ -99,4 +104,3 @@ box!=2
 
 [ENV_INIT]
 x1!=x2 | y1!=y2
-

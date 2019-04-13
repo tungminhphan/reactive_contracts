@@ -8,21 +8,18 @@ dir=$(pwd)
 # define contract input directory
 input=$dir/contracts/AG_contract
 
-simulate()
-{
-	python3 $dir/scenarios/three_islands.py $input
-}
 
 if [ $# -gt 0 ]; then
 	if [ $1 = "check" ]; then
+                python3 $dir/contracts/mutate.py
 		start=$(date +%s%N)
 		$parse_slugs $input.structuredslugs > $input.slugsin
 		$slugs --explicitStrategy $input.slugsin > $input.strat
 		end=$(date +%s%N)
 		runtime=$((end-start))
-		echo "Synthesized in $(($runtime/1000000)) milliseconds"
+		echo "Computed in $(($runtime/1000000)) milliseconds"
 		python3 $dir/helpers/strategyParser.py $input
 	fi
 fi
 
-$(simulate)
+python3 $dir/scenarios/three_islands.py $input 

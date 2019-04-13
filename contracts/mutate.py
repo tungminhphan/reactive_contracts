@@ -1,11 +1,13 @@
 # Tung Phan
 # April 11, 2019
 # This module generates jumps in assertions
+import os
+current_path = os.path.dirname(os.path.abspath(__file__))
 
 # load template
-inputfile = open('AG_template.structuredslugs')
+inputfile = open(current_path + '/AG_template.structuredslugs')
 # write to new contract
-outputfile = open('AG_contract.structuredslugs', 'w')
+outputfile = open(current_path + '/AG_contract.structuredslugs', 'w')
 
 assumptions = dict()
 guarantees = dict()
@@ -27,17 +29,15 @@ y1<=1
 x2<=2
 y2<=1
 !bridge
-(box=0) | (box=1)
-carry1 -> (box=0)
-(box=0) -> carry1
+box=0
 """
 guarantees['box_far'] = r"""
 [SYS_LIVENESS]
-box = 3
+box=3
 """
 guarantees['box_near'] = r"""
 [SYS_LIVENESS]
-box = 2
+box=2
 """
 guarantees['ego2_far'] = r"""
 [SYS_LIVENESS]
@@ -52,13 +52,17 @@ guarantees['ego2_recharge'] = r"""
 x2=2 & y2=0
 """
 outputfile.writelines(inputfile)
+
+# ASSUMPTIONS
 outputfile.writelines(assumptions['init'])
 outputfile.writelines(assumptions['button1'])
 outputfile.writelines(assumptions['button2'])
-outputfile.writelines(guarantees['ego2_recharge'])
+
+# GUARANTEES
+outputfile.writelines(guarantees['box_near'])
+outputfile.writelines(guarantees['box_far'])
 outputfile.writelines(guarantees['ego2_far'])
 outputfile.writelines(guarantees['ego2_near'])
-outputfile.writelines(guarantees['box_far'])
 
 inputfile.close()
 outputfile.close()

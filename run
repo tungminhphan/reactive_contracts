@@ -17,9 +17,12 @@ if [ $# -gt 0 ]; then
 		$slugs --explicitStrategy $input.slugsin > $input.strat
 		end=$(date +%s%N)
 		runtime=$((end-start))
-		echo "Computed in $(($runtime/1000000)) milliseconds"
+		echo "Computed in $(($runtime/1000000000)) seconds"
+        else
 		python3 $dir/helpers/strategyParser.py $input
+                python3 $dir/scenarios/three_islands.py $input $1
 	fi
+else
+		python3 $dir/helpers/strategyParser.py $input
+                python3 $dir/scenarios/three_islands.py $input 200
 fi
-
-python3 $dir/scenarios/three_islands.py $input 

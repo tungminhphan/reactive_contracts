@@ -12,6 +12,8 @@ from matplotlib.patches import Rectangle, Circle, RegularPolygon, Shadow
 import matplotlib as mpl
 from helpers import simulator
 
+max_steps = int(sys.argv[2])
+
 fig = plt.figure()
 ax = fig.add_axes([0,0,1,1]) # get rid of white border
 plt.axis('equal')
@@ -24,9 +26,9 @@ ys = np.linspace(0, Y_lim, N+1)
 
 # grid lines
 for x in xs:
-    plt.plot([x, x], [ys[0], ys[-1]], color='black', alpha=.33, linestyle=':')
+    plt.plot([x, x], [ys[0], ys[-1]], color='black', alpha=0.01, linestyle=':')
 for y in ys:
-    plt.plot([xs[0], xs[-1]], [y, y], color='black', alpha=.33, linestyle=':')
+    plt.plot([xs[0], xs[-1]], [y, y], color='black', alpha=0.01, linestyle=':')
 # grid "shades" (boxes)
 w, h = xs[1] - xs[0], ys[1] - ys[0]
 
@@ -142,12 +144,12 @@ def interpolate_run(run, N, exceptions):
     return interpolated
 
 vars_to_collect = ['x1', 'y1', 'x2', 'y2', 'bridge', 'box']
-run = simulator.random_run_from(init_state='0',max_steps=200,variables_to_collect=vars_to_collect)
+run = simulator.random_run_from(init_state='0',max_steps=max_steps,variables_to_collect=vars_to_collect)
 exceptions = {5}
 run = interpolate_run(run,10,exceptions)
 num_frames = len(run)
 # drawbridge
-drawbridge = Rectangle((1*w, 2*h), w, h, color='brown', alpha=0)
+drawbridge = Rectangle((1*w, 2*h), w, h, color='brown', alpha=0.8)
 ax.add_patch(drawbridge)
 
 # permanent bridge
@@ -175,18 +177,25 @@ def animate(i):
     button1.set_alpha((1-bridge)/2+0.1)
     button2.set_alpha((1-bridge)/2+0.1)
 
-    drawbridge.set_alpha(bridge)
+    drawbridge.set_alpha(int(bridge+0.5))
+#    drawbridge.set_alpha(bridge)
     ego.xy = (x1*w+w/2,y1*h+h/2)
     ego2.xy = (x2*w+w/2,y2*h+h/2)
+    if (x2 == 0 and y2 == 4) or (x2 == 4 and y2 == 3):
+        ego2.set_fc('r')
+    elif (x2 == 2 and y2 == 0):
+        ego2.set_fc('b')
+    else:
+        ego2.set_fc('m')
+
     if box == 0:
-        pack.xy = np.array(ego.xy)
-#        pack.xy = np.array(ego.xy) + (-w/6,-h/6) # offset
+        pack.xy = np.array(ego.xy) + (-w/6,-h/6)
     elif box == 1:
-        pack.xy = (2*w+w/4,0*h+h/4)
+        pack.xy = (2*w+w/2,0*h+h/6)
     elif box == 2:
-        pack.xy = (0*w+w/4,4*h+h/4)
+        pack.xy = (0*w+w/4,4*h+h/5)
     elif box == 3:
-        pack.xy = (4*w+w/4,3*h+h/4)
+        pack.xy = (4*w+w/3,3*h+h/7)
     return drawbridge, ego, ego2, pack, button1, button2
 
 save_video = False

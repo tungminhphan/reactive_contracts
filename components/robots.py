@@ -72,8 +72,10 @@ class Robot:
 
     def extract_primitive(self):
        """
-       This function updates the primitive queue and picks the next primitive to be applied. When there is no more primitive in the queue, it will
-       return False
+       This function updates the primitive
+       queue and picks the next primitive to be
+       applied. When there is no more primitive
+       in the queue, it will return False
        """
        while self.prim_queue.len() > 0:
            if self.prim_queue.top()[1] < 1: # if the top primitive hasn't been exhausted

@@ -2,7 +2,7 @@
 # February 18, 2019
 # This module parses a slugs strategy and converts it to .npy
 # format
-
+# California Insitute of Technology 
 import numpy as np
 import sys
 from itertools import groupby

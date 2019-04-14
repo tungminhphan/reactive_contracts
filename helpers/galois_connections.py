@@ -22,13 +22,21 @@ def get_fixpoints(oX,oY,R):
     X = set(range(0,m)) # set of indices for oX
     Y = set(range(0,n)) # set of indices for oY
     def down(subY):
+        """
+        Polarity from oY^2 to oX^2
+        """
         return {x for x in X if all(R[x,list(subY)])}
 
     def up(subX):
+        """
+        Polarity from oX^2 to oY^2
+        """
         return {y for y in Y if all(R[list(subX),y])}
 
-
     def generate_from(A,B,y):
+        """
+        The CbO algorithm
+        """
         fixpoints.add((frozenset(oX[list(A)]),frozenset(oY[list(B)])))
         if not(B == Y or y > n):
             for j in range(y,n):
@@ -43,6 +51,8 @@ def get_fixpoints(oX,oY,R):
     return fixpoints
 
 # test case
+X = np.array(['A0','A1','A2','A3'])
+Y = np.array(['G0','G1','G2','G3','G4','G5'])
 R = np.array([
      [True, True, True, False, False, False],
      [True, False, True, True, True, True],
@@ -50,11 +60,7 @@ R = np.array([
      [False, True, True, False, False, False]
      ])
 
-X = np.array(['A0','A1','A2','A3'])
-Y = np.array(['G0','G1','G2','G3','G4','G5'])
-
 fixpoints = get_fixpoints(X,Y,R)
-
 for pair in fixpoints:
     pair0, pair1 = pair
     print([set(pair0),set(pair1)])

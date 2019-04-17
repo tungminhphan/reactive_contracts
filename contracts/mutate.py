@@ -3,10 +3,9 @@
 # This module generates jumps in assertions
 
 import os
+import numpy as np
 current_path = os.path.dirname(os.path.abspath(__file__))
 
-# write to new contract
-outputfile = open(current_path + '/AG_contract.structuredslugs', 'w')
 
 assumptions = dict()
 guarantees = dict()
@@ -140,26 +139,7 @@ def get_guarantees():
 Ai = get_assumptions()
 Gi = get_guarantees()
 
-
-def synthesize_contract(A,G):
-    # load template
-    inputfile = open(current_path + '/AG_template.structuredslugs')
-    outputfile.writelines(inputfile)
-    if 'bridge_working' not in set(A): # negative properties
-        outputfile.writelines(assumptions['bridge_broken'])
-    for a in A:
-        if a == "bridge_working":
-            pass
-        else:
-            outputfile.writelines(assumptions[a])
-    for g in G:
-        outputfile.writelines(guarantees[g])
-
-A = Ai[50]
-G = Gi[3]
-print(A)
-print(G)
-synthesize_contract(A,G)
-
-inputfile.close()
-outputfile.close()
+# TEST
+#A = Ai[np.random.randint(len(Ai))]
+#G = Gi[np.random.randint(len(Gi))]
+#synthesize_contract(A,G)

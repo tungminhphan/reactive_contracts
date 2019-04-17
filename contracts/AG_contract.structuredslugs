@@ -109,12 +109,8 @@ x1<=1
 y1>=3
 
 [ENV_INIT]
-x2>=3
+x2<=1
 y2>=3
-
-[ENV_TRANS]
-# button2 behavior
-((x1=0 & y1=3) | (x2=0 & y2=3)) -> bridge'
 
 [SYS_LIVENESS]
 x2=0 & y2=4 & box=2

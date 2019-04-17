@@ -5,18 +5,20 @@ California Institute of Technology
 April 16, 2019
 
 """
-import os
+import os, sys
+sys.path.append('..') # for import
 import subprocess
 import numpy as np
 import datetime
 from contracts.mutate import Ai, Gi, assumptions, guarantees
-current_path = os.path.dirname(os.path.abspath(__file__))
+current_path = os.path.dirname(os.path.abspath(__file__)) # for abs path
+parrent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
 
 def synthesize_contract(A,G):
     # load template
-    inputfile = open(current_path + '/contracts/AG_template.structuredslugs')
+    inputfile = open(current_path + '/AG_template.structuredslugs')
     # write to new contract
-    outputfile = open(current_path + '/contracts/AG_contract.structuredslugs', 'w')
+    outputfile = open(current_path + '/AG_contract.structuredslugs', 'w')
     outputfile.writelines(inputfile)
     if 'bridge_working' not in set(A): # negative properties
         outputfile.writelines(assumptions['bridge_broken'])
@@ -33,7 +35,7 @@ def synthesize_contract(A,G):
 
 def check_real(A, G):
     synthesize_contract(A,G)
-    cmd = subprocess.run([current_path + '/run', 'check'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    cmd = subprocess.run([parrent_path + '/run', 'syn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     comp_time =cmd.stdout.decode('utf-8')
     val = [int(s) for s in comp_time.split() if s.isdigit()][0]
     real = cmd.stderr.decode('utf-8')
@@ -58,4 +60,4 @@ for i in range(len(Ai)):
         R['paired'][i][j] = True
         count += 1
         print('Progress: ' + str(round(count/float(total)*100,3)) + '%')
-        np.save('R_' + now + '.npy', R)
+        np.save('Real_' + now + '.npy', R)

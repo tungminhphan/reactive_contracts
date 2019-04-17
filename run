@@ -6,11 +6,19 @@ parse_slugs="/home/tung/Desktop/slugs/tools/StructuredSlugsParser/compiler.py"
 # define current directory
 dir=$(pwd)
 # define contract input directory
-input=$dir/contracts/AG_contract
+input=$dir/AG_contract
+input2=$dir/contracts/AG_contract
 
 
 if [ $# -gt 0 ]; then
 	if [ $1 = "check" ]; then
+		start=$(date +%s%N)
+		$parse_slugs $input2.structuredslugs > $input2.slugsin
+		$slugs --explicitStrategy $input2.slugsin > $input2.strat
+		end=$(date +%s%N)
+		runtime=$((end-start))
+		echo "Computed in $(($runtime/1000000000)) seconds"
+        elif [ $1 = "syn" ]; then
 		start=$(date +%s%N)
 		$parse_slugs $input.structuredslugs > $input.slugsin
 		$slugs --explicitStrategy $input.slugsin > $input.strat
@@ -18,10 +26,10 @@ if [ $# -gt 0 ]; then
 		runtime=$((end-start))
 		echo "Computed in $(($runtime/1000000000)) seconds"
         else
-		python3 $dir/helpers/strategy_parser.py $input
-                python3 $dir/scenarios/three_islands.py $input $1
+		python3 $dir/helpers/strategy_parser.py $input2
+                python3 $dir/scenarios/three_islands.py $input2 $1
 	fi
 else
-		python3 $dir/helpers/strategy_parser.py $input
-                python3 $dir/scenarios/three_islands.py $input 200
+		python3 $dir/helpers/strategy_parser.py $input2
+                python3 $dir/scenarios/three_islands.py $input2 200
 fi

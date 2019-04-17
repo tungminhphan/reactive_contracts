@@ -113,4 +113,4 @@ x2<=2
 y2<=1
 
 [SYS_LIVENESS]
-x2=0 & y2=4 & box=2
+box=2

@@ -49,8 +49,8 @@ R['real_rel'] = np.zeros([len(Ai),len(Gi)], dtype=bool)
 R['paired'] = np.zeros([len(Ai),len(Gi)], dtype=bool)
 count = 0
 total = len(Ai) * len(Gi)
-for i in range(1):
-    for j in range(1):
+for i in range(len(Ai)):
+    for j in range(len(Gi)):
         real, comp = check_real(Ai[i],Gi[j])
         R['real_rel'][i][j] = real
         R['comp_time'][i][j] = comp

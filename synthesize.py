@@ -49,6 +49,7 @@ R['real_rel'] = np.zeros([len(Ai),len(Gi)], dtype=bool)
 R['paired'] = np.zeros([len(Ai),len(Gi)], dtype=bool)
 count = 0
 total = len(Ai) * len(Gi)
+now = str(datetime.datetime.now())
 for i in range(len(Ai)):
     for j in range(len(Gi)):
         real, comp = check_real(Ai[i],Gi[j])
@@ -57,7 +58,4 @@ for i in range(len(Ai)):
         R['paired'][i][j] = True
         count += 1
         print('Progress: ' + str(round(count/float(total)*100,3)) + '%')
-
-
-now = str(datetime.datetime.now())
-np.save('R_' + now + '.npy', R)
+        np.save('R_' + now + '.npy', R)

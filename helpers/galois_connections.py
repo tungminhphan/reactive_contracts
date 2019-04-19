@@ -16,11 +16,13 @@ def get_fixpoints(oX,oY,R):
     Output:
     fixpoints - the set of all fixpoints
     """
-    fixpoints = set()
+    fixpoints = []
+    oX = np.array(oX)
+    oY = np.array(oY)
     m = len(oX)
     n = len(oY)
-    X = set(range(0,m)) # set of indices for oX
-    Y = set(range(0,n)) # set of indices for oY
+    X = set(range(m)) # set of indices for oX
+    Y = set(range(n)) # set of indices for oY
     def down(subY):
         """
         Polarity from oY^2 to oX^2
@@ -37,7 +39,7 @@ def get_fixpoints(oX,oY,R):
         """
         The CbO algorithm
         """
-        fixpoints.add((frozenset(oX[list(A)]),frozenset(oY[list(B)])))
+        fixpoints.append([oX[list(A)], oY[list(B)]])
         if not(B == Y or y > n):
             for j in range(y,n):
                 if j not in B:
@@ -45,22 +47,22 @@ def get_fixpoints(oX,oY,R):
                     D = up(C)
                     Yj = {y for y in Y if y < j}
                     if B.intersection(Yj) == D.intersection(Yj):
-                        generate_from(C,D,j+1)
+                        generate_from(C,D,j + 1)
 
     generate_from(down(set()), up(down(set())), 0)
     return fixpoints
 
 # test case
-X = np.array(['A0','A1','A2','A3'])
-Y = np.array(['G0','G1','G2','G3','G4','G5'])
-R = np.array([
-     [True, True, True, False, False, False],
-     [True, False, True, True, True, True],
-     [True, True, False, False, True, False],
-     [False, True, True, False, False, False]
-     ])
-
-fixpoints = get_fixpoints(X,Y,R)
-for pair in fixpoints:
-    pair0, pair1 = pair
-    print([set(pair0),set(pair1)])
+#X = np.array(['A0','A1','A2','A3'])
+#Y = np.array(['G0','G1','G2','G3','G4','G5'])
+#R = np.array([
+#     [True, True, True, False, False, False],
+#     [True, False, True, True, True, True],
+#     [True, True, False, False, True, False],
+#     [False, True, True, False, False, False]
+#     ])
+#
+#fixpoints = get_fixpoints(X,Y,R)
+#for pair in fixpoints:
+#    pair0, pair1 = pair
+#    print([set(pair0),set(pair1)])

@@ -4,8 +4,8 @@
 
 import os
 import numpy as np
+import itertools
 current_path = os.path.dirname(os.path.abspath(__file__))
-
 
 assumptions = dict()
 guarantees = dict()
@@ -85,55 +85,54 @@ guarantees['box_ego2_far'] = r"""
 [SYS_LIVENESS]
 x2 = 4 & y2 =3 & box=3
 """
+def get_powerset(s):
+    '''
+    Compute the powerset of a set by shifting bits
+    '''
+    x = len(s)
+    Ps = []
+    for i in range(1 << x): # 1 << x is 1 shifted to the left x times, this is the same as multiplying 1 by 2**x
+        Ps.append([s[j] for j in range(x) if (i & (1 << j))]) # shift and use bitwise "and" to check for "hits" on i
+    return Ps
 
 def get_assumptions():
-    loc = {'start', 'near', 'far'}
-    safe = {'button1', 'button2', 'bridge'}
+    ego1 = [['ego1_start'], ['ego1_near'], ['ego1_far']]
+    ego2 = [['ego2_start'], ['ego2_near'], ['ego2_far']]
+    safe = get_powerset(['button1_working', 'button2_working', 'bridge_working'])
     assumptions = []
-    for ego1 in loc:
-        ego1 = 'ego1_' + ego1
-        for ego2 in loc:
-            ego2 = 'ego2_' + ego2
-            for button1_working in {True, False}:
-                for button2_working in {True, False}:
-                    for bridge_working in {True, False}:
-                        assumption = [ego1, ego2]
-                        if button1_working:
-                            assumption.append('button1_working')
-                        if button2_working:
-                            assumption.append('button2_working')
-                        if bridge_working:
-                            assumption.append('bridge_working')
-                        assumptions.append(assumption)
+    for A in itertools.product(ego1,ego2,safe):
+        a = []
+        for part in A:
+            a = a + part
+        if a != []:
+            assumptions.append(a)
     return assumptions
 
 def get_guarantees():
-    loc_box = {'near', 'far', None}
-    loc2 = {'start', 'near', 'far', None}
     guarantees = []
-    for ego2 in loc2:
-        if ego2 != None:
-           ego2 = 'ego2_' + ego2
-        for box in loc_box:
-            if box != None:
-                box = 'box_' + box
-            for box_ego2 in loc_box:
-                if box_ego2 != None:
-                    choice = box_ego2
-                    box_ego2 = 'box_ego2_' + box_ego2
-                    if box == 'box_' + choice:
-                        box = None
-                    if ego2 == 'ego2_' + choice:
-                        ego2 = None
-                guarantee = []
-                if box_ego2 != None:
-                    guarantee.append(box_ego2)
-                if ego2 != None:
-                    guarantee.append(ego2)
-                if box != None:
-                    guarantee.append(box)
-                if guarantee != []:
-                    guarantees.append(guarantee)
+    # absence of joint box_ego2
+    ego2 = get_powerset(['ego2_start', 'ego2_near', 'ego2_far'])
+    box = get_powerset(['box_near', 'box_far'])
+    for G in itertools.product(ego2,box):
+        g = []
+        for part in G:
+            g = g + part
+        if g != []:
+            guarantees.append(g)
+    # presence of joint box_ego2
+    for loc in ['near', 'far']:
+        oploc = 'near'
+        if loc == 'near':
+            oploc = 'far'
+        box_ego2 = [['box_ego2_' + loc]]
+        ego2 = get_powerset(['ego2_start', 'ego2_' + oploc])
+        box = get_powerset(['box_'+oploc])
+        for G in itertools.product(box_ego2,ego2,box):
+            g = []
+            for part in G:
+                g = g + part
+            if g != []:
+                guarantees.append(g)
     return guarantees
 
 Ai = get_assumptions()

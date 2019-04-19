@@ -1,6 +1,6 @@
 """
 Tung M. Phan
-This module compute realizability relation between assumptions and guarantees
+This module computes realizability relation between assumptions and guarantees
 California Institute of Technology
 April 16, 2019
 
@@ -12,7 +12,7 @@ import numpy as np
 import datetime
 from contracts.mutate import Ai, Gi, assumptions, guarantees
 current_path = os.path.dirname(os.path.abspath(__file__)) # for abs path
-parrent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
+parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
 
 def synthesize_contract(A,G):
     # load template
@@ -35,7 +35,7 @@ def synthesize_contract(A,G):
 
 def check_real(A, G):
     synthesize_contract(A,G)
-    cmd = subprocess.run([parrent_path + '/run', 'syn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    cmd = subprocess.run([parent_path + '/run', 'syn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     comp_time =cmd.stdout.decode('utf-8')
     val = [int(s) for s in comp_time.split() if s.isdigit()][0]
     real = cmd.stderr.decode('utf-8')
@@ -43,7 +43,6 @@ def check_real(A, G):
         return True, val
     elif 'unrealizable' in real:
         return False, val
-
 
 R = dict()
 R['comp_time'] = np.zeros([len(Ai),len(Gi)])

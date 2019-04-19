@@ -96,5 +96,3 @@ box!=2
 
 [ENV_INIT]
 x1!=x2 | y1!=y2
-
-

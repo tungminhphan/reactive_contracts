@@ -95,11 +95,13 @@ def create_min_edge_list(R, A = None):
                     if len(A[i]) == 0:
                         Ai = 'Ø'
                     else:
-                        Ai = str(sorted(A[i]))
+                        Ai = str(A[i])
+#                        Ai = str(sorted(A[i])) # sorting for list
                     if len(A[j]) == 0:
                         Aj = 'Ø'
                     else:
-                        Aj = str(sorted(A[j]))
+                        Aj = str(A[j])
+#                        Aj = str(sorted(A[j])) # sorting for list
                     edges.append([Ai,Aj])
                 else:
                     edges.append([str(i),str(j)])
@@ -130,47 +132,63 @@ def reduce_assume_fixpoints(A):
     return A_red
 
 
+def simp_assume_disjunct(Aset,Avars):
+    ldict = {} # local dictionary has to be created because of a bug in exec()
+    A_all = []
+    for idx in Aset:
+        A_all.append(Ai[idx])
+#    Avars = set()
+#    for A in A_all:
+#        Avars = Avars.union(set(A))
+    Avars = Avars
+    for var in Avars:
+        exec(var + '= Symbol(\'' + var +'\')', globals(), ldict)
+    B = None
+    for conj in A_all:
+        A = None
+        for disj in conj:
+            if A == None:
+                exec('A = ' + disj, locals(), ldict)
+                A = ldict['A']
+            else:
+                exec('A = A & ' + disj, locals(), ldict)
+                A = ldict['A']
+        if B == None:
+            exec('B = A', locals(), ldict)
+            B = ldict['B']
+        else:
+            exec('B = B | A', locals(), ldict)
+            B = ldict['B']
+    if B != None:
+        B = simplify_logic(B, force=True)
+        # simplify init conditions
+        # TODO: define init to automate this process
+        exp1 = ldict['ego1_far'] | ldict['ego1_near'] | ldict['ego1_start']
+        exp2 = ldict['ego2_far'] | ldict['ego2_near'] | ldict['ego2_start']
+        B = B.subs(exp1, True)
+        B = B.subs(exp2, True)
+        B = simplify_logic(B, force=True)
+    return str(B)
+
 # test case
 A, G = process_fixpoints(contract_fixpoints)
 A_red = reduce_assume_fixpoints(A)
 RG = transitive_reduce(get_guarantee_poset(G))
-edge_list = create_min_edge_list(RG,A_red)
+Avars = set()
+for A in Ai:
+    Avars = Avars.union(set(A))
 
-#print(simp_assume_disjunct(A_red[4]))
+A_red_specs = []
+for AI in A_red:
+    temp = simp_assume_disjunct(AI,Avars)
+    A_red_specs.append(temp)
+print(A_red_specs)
+edge_list = create_min_edge_list(RG, A_red_specs)
 
-A_all = []
-#def simp_assume_disjunct(Aset):
-Aset = A_red[4]
-for idx in Aset:
-    A_all.append(Ai[idx])
-A_vars = set()
-for A in A_all:
-    A_vars = A_vars.union(set(A))
-for var in A_vars:
-    exec(var + '= Symbol(\'' + var +'\')')
-B = None
-for conj in A_all:
-    A = None
-    for disj in conj:
-        if A == None:
-            exec('A = ' + disj)
-        else:
-            exec('A = A & ' + disj)
-    if B == None:
-        exec('B = A')
-    else:
-        exec('B = B | A')
-B = simplify_logic(B, force=True)
-print(B)
-#print(simp_assume_disjunct(A_red[4]))
 
 #for i in range(len(A_red)):
 #    print(str(i) + ' ' + str(A_red[i]))
-
-#print(Ai[1])
-#print(Ai[9])
 #print(Ai[25])
 #print(A_red[2])
 
-
-#convert_to_digraph(edge_list,'').render(filename='galois', cleanup=True, view=True)
+convert_to_digraph(edge_list,'').render(filename='galois', cleanup=True, view=True)

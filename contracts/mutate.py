@@ -109,6 +109,16 @@ def get_assumptions():
     return assumptions
 
 def get_guarantees():
+    """
+    singleton version
+    """
+    guarantees = [['ego2_start'], ['ego2_near'], ['ego2_far'], ['box_near'],['box_far'],['box_ego2_near'],['box_ego2_far']]
+    return guarantees
+
+def get_guarantees2():
+    """
+    powerset version
+    """
     guarantees = []
     # absence of joint box_ego2
     ego2 = get_powerset(['ego2_start', 'ego2_near', 'ego2_far'])

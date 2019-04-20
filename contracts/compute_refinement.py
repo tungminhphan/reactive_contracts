@@ -27,9 +27,6 @@ def contract_refine(c1, c2):
 def make_contract(a,g):
     return {'assume': a, 'guarantee': g}
 
-
-C = set()
-
 Ref = np.zeros((len(Ai),len(Gi),len(Ai),len(Gi)), dtype=bool)
 
 for i in range(len(Ai)):

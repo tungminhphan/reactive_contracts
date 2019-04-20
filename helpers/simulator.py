@@ -1,7 +1,9 @@
-# Tung Phan
-# February 18, 2019
-# This module reads a strategy .npy file and creates a random trace
-# (of specified length)
+"""
+Tung Phan
+February 18, 2019
+This module reads a strategy .npy file and creates a random trace
+(of specified length)
+"""
 
 import sys
 import numpy as np

@@ -15,6 +15,7 @@ from helpers.graph_algorithms import transitive_reduce
 from contracts.mutate import Ai, Gi, assumptions, guarantees
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
 from graphviz import Digraph
+from sympy import Symbol, simplify_logic, satisfiable
 
 data_num = 4
 real_rel = np.load(parent_path + '/data/real_rel' + str(data_num) + '.npy').item()['real_rel']
@@ -94,11 +95,11 @@ def create_min_edge_list(R, A = None):
                     if len(A[i]) == 0:
                         Ai = 'Ø'
                     else:
-                        Ai = str(set(A[i]))
+                        Ai = str(sorted(A[i]))
                     if len(A[j]) == 0:
                         Aj = 'Ø'
                     else:
-                        Aj = str(set(A[j]))
+                        Aj = str(sorted(A[j]))
                     edges.append([Ai,Aj])
                 else:
                     edges.append([str(i),str(j)])
@@ -128,21 +129,48 @@ def reduce_assume_fixpoints(A):
         A_red.append(list(set(A[i]) - overlap))
     return A_red
 
+
 # test case
 A, G = process_fixpoints(contract_fixpoints)
 A_red = reduce_assume_fixpoints(A)
 RG = transitive_reduce(get_guarantee_poset(G))
 edge_list = create_min_edge_list(RG,A_red)
 
-for i in range(len(A_red)):
-    print(str(i) + ' ' + str(A_red[i]))
+#print(simp_assume_disjunct(A_red[4]))
+
+A_all = []
+#def simp_assume_disjunct(Aset):
+Aset = A_red[4]
+for idx in Aset:
+    A_all.append(Ai[idx])
+A_vars = set()
+for A in A_all:
+    A_vars = A_vars.union(set(A))
+for var in A_vars:
+    exec(var + '= Symbol(\'' + var +'\')')
+B = None
+for conj in A_all:
+    A = None
+    for disj in conj:
+        if A == None:
+            exec('A = ' + disj)
+        else:
+            exec('A = A & ' + disj)
+    if B == None:
+        exec('B = A')
+    else:
+        exec('B = B | A')
+B = simplify_logic(B, force=True)
+print(B)
+#print(simp_assume_disjunct(A_red[4]))
+
+#for i in range(len(A_red)):
+#    print(str(i) + ' ' + str(A_red[i]))
 
 #print(Ai[1])
 #print(Ai[9])
 #print(Ai[25])
 #print(A_red[2])
-#print(Gi[0])
-#print(Gi[1])
-#print(Gi[3])
 
-convert_to_digraph(edge_list,'').render(filename='galois', cleanup=True, view=True)
+
+#convert_to_digraph(edge_list,'').render(filename='galois', cleanup=True, view=True)

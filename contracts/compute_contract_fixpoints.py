@@ -14,23 +14,33 @@ from helpers.galois_connections import get_fixpoints
 from helpers.graph_algorithms import transitive_reduce
 from contracts.mutate import Ai, Gi, assumptions, guarantees
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
+from graphviz import Digraph
 
 data_num = 4
 real_rel = np.load(parent_path + '/data/real_rel' + str(data_num) + '.npy').item()['real_rel']
 refi_rel = np.load(parent_path + '/data/refi_rel' + str(data_num) + '.npy')
 
 contract_fixpoints = get_fixpoints(range(len(Ai)), range(len(Gi)), real_rel)
-A = []
-G = []
-for pair in contract_fixpoints:
-    assm, guaran = pair
-    A.append(assm)
-    G.append(guaran)
+
+def process_fixpoints(FP):
+    """
+    Process Galois fixpoints
+    input: FP - list of fixpoints
+    output: two lists of fixpoints one for each domain
+
+    """
+    A = []
+    G = []
+    for pair in contract_fixpoints:
+        assm, guaran = pair
+        A.append(assm)
+        G.append(guaran)
+    return A, G
 
 def get_assume_poset(A):
     """
-    input - A: list of assumptions
-    output -R: an ordering relation
+    input : A - a list of assumptions
+    output: R - an ordering relation
     """
     n = len(A)
     R = np.zeros((n,n),dtype=bool)
@@ -44,8 +54,8 @@ def get_assume_poset(A):
 
 def get_guarantee_poset(G):
     """
-    input - A: list of assumptions
-    output -R: an ordering relation
+    input : G - a list of guarantees
+    output: R - an ordering relation
     """
     n = len(A)
     R = np.zeros((n,n),dtype=bool)
@@ -59,8 +69,8 @@ def get_guarantee_poset(G):
 
 def print_instructions(R):
     """
-    input - R: a transitive reduced relation
-    output: instructions for Hasse diagram
+    input: R - a transitive reduced relation
+    output: printed instructions for Hasse diagram
     """
     edge = 0
     n = R.shape[0]
@@ -70,21 +80,69 @@ def print_instructions(R):
                 edge += 1
                 print('edge ' + str(edge) + ': ' + str(i) + ' is contained in ' + str(j))
 
+def create_min_edge_list(R, A = None):
+    """
+    input: R - a transitive reduced relation
+    output: a list of edges induced by R
+    """
+    edges = []
+    n = R.shape[0]
+    for i in range(n):
+        for j in range(n):
+            if i != j and R[i][j]:
+                if A != None:
+                    if len(A[i]) == 0:
+                        Ai = 'Ø'
+                    else:
+                        Ai = str(set(A[i]))
+                    if len(A[j]) == 0:
+                        Aj = 'Ø'
+                    else:
+                        Aj = str(set(A[j]))
+                    edges.append([Ai,Aj])
+                else:
+                    edges.append([str(i),str(j)])
+    return edges
+
+def convert_to_digraph(edge_list, name):
+    poset = Digraph(format='svg')
+#    poset.attr('node', shape='circle')
+    # adds transitions
+    for trans in edge_list:
+        state1, state2 = trans
+        poset.edge(name+state1, name+state2)
+    return poset
+
+def reduce_assume_fixpoints(A):
+    """
+    input : A - a list of fixpoint assumptions
+    output: A_red - a reduced list of fixpoint assumptions
+    """
+    A_red = []
+    RA = transitive_reduce(get_assume_poset(A))
+    for i in range(len(A)):
+        overlap = set()
+        for j in range(len(A)):
+            if j != i and RA[j][i]:
+                overlap = overlap.union(set(A[j]))
+        A_red.append(list(set(A[i]) - overlap))
+    return A_red
 
 # test case
+A, G = process_fixpoints(contract_fixpoints)
+A_red = reduce_assume_fixpoints(A)
+RG = transitive_reduce(get_guarantee_poset(G))
+edge_list = create_min_edge_list(RG,A_red)
 
-# print_instructions(transitive_reduce(get_guarantee_poset(G)))
+for i in range(len(A_red)):
+    print(str(i) + ' ' + str(A_red[i]))
 
-#print([Ai[i] for i in A[4]])
-#print('\n')
-#print([Gi[i] for i in G[2]])
-#contract_fixpoints = get_fixpoints(Ai, Gi, real_rel)
-#
-#A = []
-#G = []
-#
-#for pair in contract_fixpoints:
-#    assm, guaran = pair
-#    A.append(assm)
-#    G.append(guaran)
-#
+#print(Ai[1])
+#print(Ai[9])
+#print(Ai[25])
+#print(A_red[2])
+#print(Gi[0])
+#print(Gi[1])
+#print(Gi[3])
+
+convert_to_digraph(edge_list,'').render(filename='galois', cleanup=True, view=True)

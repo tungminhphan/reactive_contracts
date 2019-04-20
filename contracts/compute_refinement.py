@@ -38,4 +38,5 @@ for i in range(len(Ai)):
                 Ref[i][j][k][l] = contract_refine(C_ij, C_kl)
 
 now = str(datetime.datetime.now())
-np.save('Refi_' + now + '.npy', Ref)
+if __name__ == '__main__': # if called directly, save output
+    np.save('Refi_' + now + '.npy', Ref)

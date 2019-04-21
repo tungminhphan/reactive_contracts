@@ -1,6 +1,7 @@
 # Tung Phan
 # April 11, 2019
 # This module generates jumps in assertions
+# TODO: generalize this module, move data to /scenarios
 
 import os
 import numpy as np
@@ -147,8 +148,3 @@ def get_guarantees2():
 
 Ai = get_assumptions()
 Gi = get_guarantees()
-
-# TEST
-#A = Ai[np.random.randint(len(Ai))]
-#G = Gi[np.random.randint(len(Gi))]
-#synthesize_contract(A,G)

@@ -9,7 +9,7 @@ import numpy as np
 import datetime
 import sys
 sys.path.append("..")
-from contracts.mutate import Ai, Gi, assumptions, guarantees
+from contracts.generate_AG import Ai, Gi, assumptions, guarantees
 
 def assume_refine(a1, a2):
     return set(a1) <= set(a2)
@@ -18,6 +18,10 @@ def guarantee_refine(g1, g2):
     return set(g2) <= set(g1)
 
 def contract_refine(c1, c2):
+    """
+    This function checks if the contract c1 is refined by the contract c2
+
+    """
     a1 = c1['assume']
     a2 = c2['assume']
     g1 = c1['guarantee']

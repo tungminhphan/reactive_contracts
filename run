@@ -12,6 +12,7 @@ input2=$dir/contracts/AG_contract
 
 if [ $# -gt 0 ]; then
 	if [ $1 = "check" ]; then
+                python3 $dir/contracts/compute_realizability.py $2 $3
 		start=$(date +%s%N)
 		$parse_slugs $input2.structuredslugs > $input2.slugsin
 		$slugs --explicitStrategy $input2.slugsin > $input2.strat

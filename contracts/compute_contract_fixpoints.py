@@ -12,7 +12,7 @@ from compute_refinement import assume_refine, guarantee_refine
 sys.path.append('..') # for import
 from helpers.galois_connections import get_fixpoints
 from helpers.graph_algorithms import transitive_reduce
-from contracts.mutate import Ai, Gi, assumptions, guarantees
+from contracts.generate_AG import Ai, Gi, assumptions, guarantees
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
 from graphviz import Digraph
 from sympy import Symbol, simplify_logic
@@ -116,21 +116,28 @@ def convert_to_digraph(edge_list, name):
         poset.edge(name+state1, name+state2)
     return poset
 
-def reduce_assume_fixpoints(A):
+def reduce_fixpoints(B, AG = None): # B is either 'assume' or 'guarantee'
     """
     input : A - a list of fixpoint assumptions
     output: A_red - a reduced list of fixpoint assumptions
     output: RA - a reduced relation
     """
-    A_red = []
-    RA = transitive_reduce(get_assume_poset(A))
-    for i in range(len(A)):
+
+    B_red = []
+    if AG == 'assume':
+        RB = transitive_reduce(get_assume_poset(B))
+    elif AG == 'guarantee':
+        RB = transitive_reduce(get_guarantee_poset(B))
+    for i in range(len(B)):
         overlap = set()
-        for j in range(len(A)):
-            if j != i and RA[j][i]:
-                overlap = overlap.union(set(A[j]))
-        A_red.append(list(set(A[i]) - overlap))
-    return A_red, RA
+        for j in range(len(B)):
+            if j != i and RB[j][i]:
+                overlap = overlap.union(set(B[j]))
+        if AG == 'assume':
+            B_red.append(list(set(B[i]) - overlap))
+        elif AG == 'guarantee':
+            B_red.append(list(overlap-set(B[i])))
+    return B_red, RB
 
 
 def simp_assume_disjunct(Aset, Avars):
@@ -144,7 +151,6 @@ def simp_assume_disjunct(Aset, Avars):
     A_all = [] #
     for idx in Aset:
         A_all.append(Ai[idx])
-    Avars = Avars
     for var in Avars:
         exec(var + '= Symbol(\'' + var +'\')', globals(), ldict)
     B = None
@@ -183,16 +189,52 @@ def simp_guarantee_conjunct(Gset, Gvars):
     """
     ldict = {}
     G_all = []
+    for idx in Gset: # picks out guarantees from a particular fixpoint
+        G_all.append(Gi[idx])
+    for var in Gvars:
+        exec(var + '= Symbol(\'' + var +'\')', globals(), ldict)
+    B = None
+    for disj in G_all:
+        A = None
+        for conj in disj:
+            if A == None:
+                exec('A = ' + conj, locals(), ldict)
+                A = ldict['A']
+            else:
+                exec('A = A | ' + conj, locals(), ldict) # TODO: check
+                A = ldict['A']
+        if B == None:
+            exec('B = A', locals(), ldict)
+            B = ldict['B']
+        else:
+            exec('B = B & A', locals(), ldict)
+            B = ldict['B']
+    if B != None:
+        B = simplify_logic(B, force=True)
+    return str(B)
 
 # test case
 A, G = process_fixpoints(contract_fixpoints)
 
+# guarantees
+G_red, RG = reduce_fixpoints(G,'guarantee')
+Gvars = set()
+for g in Gi:
+    Gvars = Gvars.union(set(g))
+
+G_red_specs = []
+for GI in G_red:
+    temp = simp_guarantee_conjunct(GI,Gvars)
+    G_red_specs.append(temp)
+
+guarantee_edge_list = create_min_edge_list(RG, G_red_specs)
+convert_to_digraph(guarantee_edge_list,'').render(filename='galois_guarantee', cleanup=True, view=True)
 
 # assumptions
-A_red, RA = reduce_assume_fixpoints(A)
+A_red, RA = reduce_fixpoints(A,'assume')
 Avars = set()
-for A in Ai:
-    Avars = Avars.union(set(A))
+for a in Ai:
+    Avars = Avars.union(set(a))
 
 A_red_specs = []
 for AI in A_red:
@@ -202,9 +244,3 @@ for AI in A_red:
 assume_edge_list = create_min_edge_list(RA, A_red_specs)
 convert_to_digraph(assume_edge_list,'').render(filename='galois_assume', cleanup=True, view=True)
 
-
-# guarantees
-RG = transitive_reduce(get_assume_poset(G))
-guarantee_edge_list = create_min_edge_list(RG, G_red_specs)
-
-convert_to_digraph(guarantee_edge_list,'').render(filename='galois_guarantee', cleanup=True, view=True)

@@ -109,7 +109,7 @@ def create_min_edge_list(R, A = None):
 
 def convert_to_digraph(edge_list, name):
     poset = Digraph(format='svg')
-#    poset.attr('node', shape='circle')
+#    poset.attr('node', color='skyblue', style='filled')
     # adds transitions
     for trans in edge_list:
         state1, state2 = trans
@@ -120,6 +120,7 @@ def reduce_assume_fixpoints(A):
     """
     input : A - a list of fixpoint assumptions
     output: A_red - a reduced list of fixpoint assumptions
+    output: RA - a reduced relation
     """
     A_red = []
     RA = transitive_reduce(get_assume_poset(A))
@@ -129,17 +130,20 @@ def reduce_assume_fixpoints(A):
             if j != i and RA[j][i]:
                 overlap = overlap.union(set(A[j]))
         A_red.append(list(set(A[i]) - overlap))
-    return A_red
+    return A_red, RA
 
 
-def simp_assume_disjunct(Aset,Avars):
+def simp_assume_disjunct(Aset, Avars):
+    """
+    Convert a disjunction oof assumptions to an equivalent an Boolean expression
+    input: Aset - a list of assumptions disjuncts
+           Avars - set of all variables involved in the disjuncts
+    output: an equivalent Boolean expression
+    """
     ldict = {} # local dictionary has to be created because of a bug in exec()
-    A_all = []
+    A_all = [] #
     for idx in Aset:
         A_all.append(Ai[idx])
-#    Avars = set()
-#    for A in A_all:
-#        Avars = Avars.union(set(A))
     Avars = Avars
     for var in Avars:
         exec(var + '= Symbol(\'' + var +'\')', globals(), ldict)
@@ -170,11 +174,22 @@ def simp_assume_disjunct(Aset,Avars):
         B = simplify_logic(B, force=True)
     return str(B)
 
+def simp_guarantee_conjunct(Gset, Gvars):
+    """
+    Convert a conjunction of guarantees to an equivalent an Boolean expression
+    input: Gset - a list of guarantee conjuncts
+           Gvars - set of all variables involved in the conjuncts
+    output: an equivalent Boolean expression
+    """
+    ldict = {}
+    G_all = []
+
 # test case
 A, G = process_fixpoints(contract_fixpoints)
-A_red = reduce_assume_fixpoints(A)
-RA = transitive_reduce(get_assume_poset(A))
 
+
+# assumptions
+A_red, RA = reduce_assume_fixpoints(A)
 Avars = set()
 for A in Ai:
     Avars = Avars.union(set(A))
@@ -183,7 +198,13 @@ A_red_specs = []
 for AI in A_red:
     temp = simp_assume_disjunct(AI,Avars)
     A_red_specs.append(temp)
-edge_list = create_min_edge_list(RA, A_red_specs)
-#edge_list = create_min_edge_list(RA)
 
-convert_to_digraph(edge_list,'').render(filename='galois', cleanup=True, view=True)
+assume_edge_list = create_min_edge_list(RA, A_red_specs)
+convert_to_digraph(assume_edge_list,'').render(filename='galois_assume', cleanup=True, view=True)
+
+
+# guarantees
+RG = transitive_reduce(get_assume_poset(G))
+guarantee_edge_list = create_min_edge_list(RG, G_red_specs)
+
+convert_to_digraph(guarantee_edge_list,'').render(filename='galois_guarantee', cleanup=True, view=True)

@@ -12,13 +12,14 @@ def transitive_reduce(A):
     output: transitive reduced version of A
     """
     n = A.shape[0]
+    A_red = A.copy()
     for i in range(n):
         for j in range(n):
             if A[i][j] and i != j:
                 for k in range(n):
-                    if k != i and k !=j and A[i][k] and A[k][j]:
-                        A[i][j] = False
-    return A
+                    if k != i and k != j and A[i][k] and A[k][j]:
+                        A_red[i][j] = False
+    return A_red
 
 #test case
 #A = np.array([[1,0,0,0],[1,1,0,0],[1,0,1,0],[1,0,1,1]])

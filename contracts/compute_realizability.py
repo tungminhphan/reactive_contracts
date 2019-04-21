@@ -20,10 +20,10 @@ def synthesize_contract(A,G):
     # write to new contract
     outputfile = open(current_path + '/AG_contract.structuredslugs', 'w')
     outputfile.writelines(inputfile)
-    if 'bridge_working' not in set(A): # negative properties
+    if 'bridge' not in set(A): # negative properties
         outputfile.writelines(assumptions['bridge_broken'])
     for a in A:
-        if a == "bridge_working":
+        if a == "bridge":
             pass
         else:
             outputfile.writelines(assumptions[a])

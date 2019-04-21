@@ -15,7 +15,7 @@ from helpers.graph_algorithms import transitive_reduce
 from contracts.mutate import Ai, Gi, assumptions, guarantees
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
 from graphviz import Digraph
-from sympy import Symbol, simplify_logic, satisfiable
+from sympy import Symbol, simplify_logic
 
 data_num = 4
 real_rel = np.load(parent_path + '/data/real_rel' + str(data_num) + '.npy').item()['real_rel']
@@ -163,8 +163,8 @@ def simp_assume_disjunct(Aset,Avars):
         B = simplify_logic(B, force=True)
         # simplify init conditions
         # TODO: define init to automate this process
-        exp1 = ldict['ego1_far'] | ldict['ego1_near'] | ldict['ego1_start']
-        exp2 = ldict['ego2_far'] | ldict['ego2_near'] | ldict['ego2_start']
+        exp1 = ldict['r1_far'] | ldict['r1_near'] | ldict['r1_home']
+        exp2 = ldict['r2_far'] | ldict['r2_near'] | ldict['r2_home']
         B = B.subs(exp1, True)
         B = B.subs(exp2, True)
         B = simplify_logic(B, force=True)
@@ -173,7 +173,8 @@ def simp_assume_disjunct(Aset,Avars):
 # test case
 A, G = process_fixpoints(contract_fixpoints)
 A_red = reduce_assume_fixpoints(A)
-RG = transitive_reduce(get_guarantee_poset(G))
+RA = transitive_reduce(get_assume_poset(A))
+
 Avars = set()
 for A in Ai:
     Avars = Avars.union(set(A))
@@ -182,13 +183,7 @@ A_red_specs = []
 for AI in A_red:
     temp = simp_assume_disjunct(AI,Avars)
     A_red_specs.append(temp)
-print(A_red_specs)
-edge_list = create_min_edge_list(RG, A_red_specs)
-
-
-#for i in range(len(A_red)):
-#    print(str(i) + ' ' + str(A_red[i]))
-#print(Ai[25])
-#print(A_red[2])
+edge_list = create_min_edge_list(RA, A_red_specs)
+#edge_list = create_min_edge_list(RA)
 
 convert_to_digraph(edge_list,'').render(filename='galois', cleanup=True, view=True)

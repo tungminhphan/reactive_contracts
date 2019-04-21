@@ -10,42 +10,42 @@ current_path = os.path.dirname(os.path.abspath(__file__))
 assumptions = dict()
 guarantees = dict()
 
-assumptions['ego1_start'] = r"""
+assumptions['r1_home'] = r"""
 [ENV_INIT]
 x1<=2
 y1<=1
 """
-assumptions['ego1_near'] = r"""
+assumptions['r1_near'] = r"""
 [ENV_INIT]
 x1<=1
 y1>=3
 """
-assumptions['ego1_far'] = r"""
+assumptions['r1_far'] = r"""
 [ENV_INIT]
 x1>=3
 y1>=3
 """
-assumptions['ego2_start'] = r"""
+assumptions['r2_home'] = r"""
 [ENV_INIT]
 x2<=2
 y2<=1
 """
-assumptions['ego2_near'] = r"""
+assumptions['r2_near'] = r"""
 [ENV_INIT]
 x2<=1
 y2>=3
 """
-assumptions['ego2_far'] = r"""
+assumptions['r2_far'] = r"""
 [ENV_INIT]
 x2>=3
 y2>=3
 """
-assumptions['button1_working']  = r"""
+assumptions['button1']  = r"""
 [ENV_TRANS]
 # button1 behavior
 ((x1 = 0 & y1 = 1) | (x2 = 0 & y2 = 1)) -> bridge'
 """
-assumptions['button2_working']  = r"""
+assumptions['button2']  = r"""
 [ENV_TRANS]
 # button2 behavior
 ((x1=0 & y1=3) | (x2=0 & y2=3)) -> bridge'
@@ -65,23 +65,23 @@ guarantees['box_near'] = r"""
 [SYS_LIVENESS]
 box=2
 """
-guarantees['ego2_far'] = r"""
+guarantees['r2_far'] = r"""
 [SYS_LIVENESS]
 x2 = 4 & y2 =3
 """
-guarantees['ego2_near'] = r"""
+guarantees['r2_near'] = r"""
 [SYS_LIVENESS]
 x2=0 & y2=4
 """
-guarantees['ego2_start'] = r"""
+guarantees['r2_home'] = r"""
 [SYS_LIVENESS]
 x2=2 & y2=0
 """
-guarantees['box_ego2_near'] = r"""
+guarantees['box_r2_near'] = r"""
 [SYS_LIVENESS]
 x2=0 & y2=4 & box=2
 """
-guarantees['box_ego2_far'] = r"""
+guarantees['box_r2_far'] = r"""
 [SYS_LIVENESS]
 x2 = 4 & y2 =3 & box=3
 """
@@ -96,11 +96,11 @@ def get_powerset(s):
     return Ps
 
 def get_assumptions():
-    ego1 = [['ego1_start'], ['ego1_near'], ['ego1_far']]
-    ego2 = [['ego2_start'], ['ego2_near'], ['ego2_far']]
-    safe = get_powerset(['button1_working', 'button2_working', 'bridge_working'])
+    r1 = [['r1_home'], ['r1_near'], ['r1_far']]
+    r2 = [['r2_home'], ['r2_near'], ['r2_far']]
+    safe = get_powerset(['button1', 'button2', 'bridge'])
     assumptions = []
-    for A in itertools.product(ego1,ego2,safe):
+    for A in itertools.product(r1,r2,safe):
         a = []
         for part in A:
             a = a + part
@@ -112,7 +112,7 @@ def get_guarantees():
     """
     singleton version
     """
-    guarantees = [['ego2_start'], ['ego2_near'], ['ego2_far'], ['box_near'],['box_far'],['box_ego2_near'],['box_ego2_far']]
+    guarantees = [['r2_home'], ['r2_near'], ['r2_far'], ['box_near'],['box_far'],['box_r2_near'],['box_r2_far']]
     return guarantees
 
 def get_guarantees2():
@@ -120,24 +120,24 @@ def get_guarantees2():
     powerset version
     """
     guarantees = []
-    # absence of joint box_ego2
-    ego2 = get_powerset(['ego2_start', 'ego2_near', 'ego2_far'])
+    # absence of joint box_r2
+    r2 = get_powerset(['r2_home', 'r2_near', 'r2_far'])
     box = get_powerset(['box_near', 'box_far'])
-    for G in itertools.product(ego2,box):
+    for G in itertools.product(r2,box):
         g = []
         for part in G:
             g = g + part
         if g != []:
             guarantees.append(g)
-    # presence of joint box_ego2
+    # presence of joint box_r2
     for loc in ['near', 'far']:
         oploc = 'near'
         if loc == 'near':
             oploc = 'far'
-        box_ego2 = [['box_ego2_' + loc]]
-        ego2 = get_powerset(['ego2_start', 'ego2_' + oploc])
+        box_r2 = [['box_r2_' + loc]]
+        r2 = get_powerset(['r2_home', 'r2_' + oploc])
         box = get_powerset(['box_'+oploc])
-        for G in itertools.product(box_ego2,ego2,box):
+        for G in itertools.product(box_r2,r2,box):
             g = []
             for part in G:
                 g = g + part

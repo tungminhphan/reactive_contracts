@@ -58,7 +58,7 @@ def get_guarantee_poset(G):
     input : G - a list of guarantees
     output: R - an ordering relation
     """
-    n = len(A)
+    n = len(G)
     R = np.zeros((n,n),dtype=bool)
     for i in range(n):
         a = set(G[i])
@@ -81,9 +81,11 @@ def print_instructions(R):
                 edge += 1
                 print('edge ' + str(edge) + ': ' + str(i) + ' is contained in ' + str(j))
 
-def create_min_edge_list(R, A = None):
+def create_min_edge_list(R, A = None, empty = set(), AG = ''):
     """
     input: R - a transitive reduced relation
+    input: A - an index list of assumes/guarantees
+    input: empty - list that should be "empty"
     output: a list of edges induced by R
     """
     edges = []
@@ -95,25 +97,39 @@ def create_min_edge_list(R, A = None):
                     if len(A[i]) == 0:
                         Ai = 'Ø'
                     else:
-                        Ai = str(A[i])
+                        if i in empty:
+                            Ai = '∧ (' + str(i) + ')'
+                        else:
+                            Ai = str(A[i])
 #                        Ai = str(sorted(A[i])) # sorting for list
                     if len(A[j]) == 0:
                         Aj = 'Ø'
                     else:
-                        Aj = str(A[j])
+                        if j in empty:
+                            Aj = '∧ (' + str(j) + ')'
+                        else:
+                            Aj = str(A[j])
 #                        Aj = str(sorted(A[j])) # sorting for list
                     edges.append([Ai,Aj])
                 else:
                     edges.append([str(i),str(j)])
     return edges
 
-def convert_to_digraph(edge_list, name):
+def convert_to_digraph(node_list, edge_list, name):
     poset = Digraph(format='svg')
 #    poset.attr('node', color='skyblue', style='filled')
     # adds transitions
     for trans in edge_list:
         state1, state2 = trans
-        poset.edge(name+state1, name+state2)
+        if state1[0] != '∧' and state1 != 'None':
+            state1 = name + state1
+        if state2[0] != '∧' and state2 != 'None':
+            state2 = name + state2
+        poset.edge(state1, state2)
+#    for i in range(len(node_list)):
+#        print(node_list)
+#        node = str(Gi[i])
+#        poset.node(node, color="/spectral9/"+str(i+1))
     return poset
 
 def reduce_fixpoints(B, AG = None): # B is either 'assume' or 'guarantee'
@@ -124,20 +140,25 @@ def reduce_fixpoints(B, AG = None): # B is either 'assume' or 'guarantee'
     """
 
     B_red = []
+    empty = set()
     if AG == 'assume':
         RB = transitive_reduce(get_assume_poset(B))
+        RBc = RB
     elif AG == 'guarantee':
         RB = transitive_reduce(get_guarantee_poset(B))
+        RBc = np.array(RB).transpose()
     for i in range(len(B)):
         overlap = set()
         for j in range(len(B)):
-            if j != i and RB[j][i]:
+            if j != i and RBc[j][i]:
                 overlap = overlap.union(set(B[j]))
-        if AG == 'assume':
+
+        if len(B[i]) > 0 and len(set(B[i])-overlap) == 0 and AG == 'guarantee':
+            B_red.append(list(set(B[i])))
+            empty.add(i)
+        else:
             B_red.append(list(set(B[i]) - overlap))
-        elif AG == 'guarantee':
-            B_red.append(list(overlap-set(B[i])))
-    return B_red, RB
+    return B_red, RB, empty
 
 
 def simp_assume_disjunct(Aset, Avars):
@@ -213,34 +234,36 @@ def simp_guarantee_conjunct(Gset, Gvars):
         B = simplify_logic(B, force=True)
     return str(B)
 
-# test case
-A, G = process_fixpoints(contract_fixpoints)
+def make_contracts():
+    A, G = process_fixpoints(contract_fixpoints)
 
-# guarantees
-G_red, RG = reduce_fixpoints(G,'guarantee')
-Gvars = set()
-for g in Gi:
-    Gvars = Gvars.union(set(g))
+    # guarantees
+    G_red, RG, empty = reduce_fixpoints(G,'guarantee')
+    Gvars = set()
+    for g in Gi:
+        Gvars = Gvars.union(set(g))
 
-G_red_specs = []
-for GI in G_red:
-    temp = simp_guarantee_conjunct(GI,Gvars)
-    G_red_specs.append(temp)
+    G_red_specs = []
+    for GI in G_red:
+        temp = simp_guarantee_conjunct(GI,Gvars)
+        G_red_specs.append(temp)
 
-guarantee_edge_list = create_min_edge_list(RG, G_red_specs)
-convert_to_digraph(guarantee_edge_list,'').render(filename='galois_guarantee', cleanup=True, view=True)
+    guarantee_edge_list = create_min_edge_list(RG, G_red_specs, empty)
+    convert_to_digraph(G_red, guarantee_edge_list,'□◇').render(filename='galois_guarantee', cleanup=True, view=True)
 
-# assumptions
-A_red, RA = reduce_fixpoints(A,'assume')
-Avars = set()
-for a in Ai:
-    Avars = Avars.union(set(a))
+    # assumptions
+    A_red, RA, empty = reduce_fixpoints(A,'assume')
+    Avars = set()
+    for a in Ai:
+        Avars = Avars.union(set(a))
 
-A_red_specs = []
-for AI in A_red:
-    temp = simp_assume_disjunct(AI,Avars)
-    A_red_specs.append(temp)
+    A_red_specs = []
+    for AI in A_red:
+        temp = simp_assume_disjunct(AI,Avars)
+        A_red_specs.append(temp)
 
-assume_edge_list = create_min_edge_list(RA, A_red_specs)
-convert_to_digraph(assume_edge_list,'').render(filename='galois_assume', cleanup=True, view=True)
+    assume_edge_list = create_min_edge_list(RA, A_red_specs, empty)
+    convert_to_digraph(assume_edge_list,'').render(filename='galois_assume', cleanup=True, view=True)
+    edge_list = assume_edge_list + guarantee_edge_list
 
+make_contracts()

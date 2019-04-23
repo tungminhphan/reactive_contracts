@@ -1,6 +1,6 @@
 # reactive_contracts
-## Authors
-Tung M. Phan<br />
+## Author
+Tung Phan-Minh<br />
 ## Description
 Automatic synthesis of reactive contracts and implementations
 ## Instructions
@@ -20,7 +20,7 @@ When code is modified or re-distributed, the LICENSE file should accompany the
 code or any subset of it, however small.  As an alternative, the LICENSE text
 can be copied within files, if so desired. <br />
 
-## A Reactive Contract
+## An example of an automatically generated reactive GR(1) contract
 ![assume](https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/connexions/assume.png)
 ![guarantee](https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/connexions/guarantee.png)
 

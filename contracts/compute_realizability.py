@@ -6,11 +6,10 @@ April 16, 2019
 
 """
 import os, sys
-sys.path.append('..') # for import
 import subprocess
 import numpy as np
 import datetime
-from contracts.generate_AG import Ai, Gi, assumptions, guarantees
+from generate_AG import Ai, Gi, assumptions, guarantees
 current_path = os.path.dirname(os.path.abspath(__file__)) # for abs path
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
 

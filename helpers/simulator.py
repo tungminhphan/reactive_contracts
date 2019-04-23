@@ -8,7 +8,7 @@ This module reads a strategy .npy file and creates a random trace
 import sys
 import numpy as np
 filename = str(sys.argv[1])
-strategy_dict = np.load(filename+'.npy').item()
+strategy_dict = np.load(filename+'.npy', allow_pickle=True).item()
 
 # variables_to_collect = ['x1', 'y1', etc.] is an ordered tuple
 def random_run_from(init_state, max_steps, variables_to_collect):

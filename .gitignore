@@ -3,3 +3,7 @@
 *.strat
 *.swp
 *__pycache__
+*png
+*dot
+*svg
+*pdf

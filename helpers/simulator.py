@@ -7,25 +7,59 @@ This module reads a strategy .npy file and creates a random trace
 
 import sys
 import numpy as np
-filename = str(sys.argv[1])
-strategy_dict = np.load(filename+'.npy', allow_pickle=True).item()
+
+
+def load_strategy():
+
+    if __name__ == '__main__':
+        filename = '../contracts/AG_contract'
+    else:
+        filename = str(sys.argv[1])
+
+    strategy_dict = np.load(filename+'.npy', allow_pickle=True).item()
+    return strategy_dict
 
 # variables_to_collect = ['x1', 'y1', etc.] is an ordered tuple
-def random_run_from(init_state, max_steps, variables_to_collect):
-    current_state = init_state
-    steps = 0
+def run_from(max_steps, variables_to_collect, init_state = 'random'):
+    """
+    create a simulation trace
+    """
+    run = [] # trace to broadcast
+    def look_up_state_id(state):
+        """
+        look for a dictionary that contains the subdictionary "state"
+        """
+        for key in strategy_dict:
+            if state.items() <= strategy_dict[key].items():
+                return key
+    def collect():
+        """
+        append the current state's values of interest to run
 
-    collect_state = []
-    for var in variables_to_collect:
-        collect_state.append(strategy_dict[current_state][var])
-
-    run = [collect_state]
-    while '' not in strategy_dict[current_state]['successors'] and steps < max_steps:
-        next_states = strategy_dict[current_state]['successors']
-        current_state = np.random.choice(tuple(next_states))
-        collect_state = []
+        """
+        collect_state = [] # values to save for variables specified in variables_to_collect
         for var in variables_to_collect:
             collect_state.append(strategy_dict[current_state][var])
         run.append(collect_state)
-        steps += 1
+
+    # load initial strategy
+    strategy_dict = load_strategy()
+    # compute initial state
+    steps = 0
+    if init_state == 'random':
+
+        current_state = np.random.choice(tuple(strategy_dict))
+    else:
+        current_state = look_up_state_id(init_state)
+    collect()
+
+    # next step
+    while steps < max_steps:
+        if '' not in strategy_dict[current_state]['successors']:
+            steps += 1
+            next_states = strategy_dict[current_state]['successors']
+            current_state = np.random.choice(tuple(next_states))
+            collect()
+        else:
+            break
     return run

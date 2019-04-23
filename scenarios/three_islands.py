@@ -12,8 +12,7 @@ from matplotlib.patches import Rectangle, Circle, RegularPolygon, Shadow
 import matplotlib as mpl
 from helpers import simulator
 
-max_steps = int(sys.argv[2])
-
+max_steps = int(sys.argv[2]) # get maximum number of steps for simulation
 fig = plt.figure()
 ax = fig.add_axes([0,0,1,1]) # get rid of white border
 plt.axis('equal')
@@ -120,8 +119,6 @@ ax.add_patch(house3)
 # packages
 pack = Rectangle((0,0), w/3, h/3, fc='y', alpha=0.9)
 ax.add_patch(pack)
-#pack2 = RegularPolygon((w/2+w*4,h/2+h*3), 4, 0.5, fc='y', alpha=0.9)
-#ax.add_patch(pack2)
 
 def interpolate_array(arr1, arr2, N):
     interp = []
@@ -144,7 +141,17 @@ def interpolate_run(run, N, exceptions):
     return interpolated
 
 vars_to_collect = ['x1', 'y1', 'x2', 'y2', 'bridge', 'box']
-run = simulator.random_run_from(init_state='0',max_steps=max_steps,variables_to_collect=vars_to_collect)
+
+init_state = {
+        'x1': 0,
+        'y1': 1,
+        'x2': 0,
+        'y2': 0,
+        'box': 3
+        }
+
+init_state = 'random'
+run = simulator.run_from(max_steps=max_steps,variables_to_collect=vars_to_collect, init_state=init_state)
 exceptions = {5}
 run = interpolate_run(run,10,exceptions)
 num_frames = len(run)
@@ -200,7 +207,7 @@ def animate(i):
 
 save_video = False
 ani = animation.FuncAnimation(fig, animate, frames=num_frames,
-        interval=25, blit=True, repeat=False)
+        interval=20, blit=True, repeat=False)
 if save_video:
     Writer = animation.writers['ffmpeg']
     writer = Writer(fps = 30, metadata=dict(artist='Gridworld Simulator'), bitrate=-1)

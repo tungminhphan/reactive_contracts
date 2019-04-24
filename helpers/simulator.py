@@ -9,7 +9,7 @@ import sys, os
 import warnings
 import subprocess
 sys.path.append('..')
-from contracts.compute_realizability import synthesize_by_ij
+from contracts.compute_realizability import synthesize_by_Lij
 import numpy as np
 current_path = os.path.dirname(os.path.abspath(__file__)) # for abs path
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
@@ -56,8 +56,8 @@ def run_from(max_steps, variables_to_collect, **options):
         if 'init_contract' not in options: # if init_contract i
             warnings.warn('Using most recently attempted strategy!')
         else:
-            i, j = options['init_contract']
-            synthesize_by_ij(i,j)
+            Li, Lj = options['init_contract']
+            synthesize_by_Lij(Li,Lj)
             subprocess.run([parent_path + '/run', 'resyn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE) # synthesize strategy online
         # load initial strategy
         strategy_dict = load_strategy()
@@ -97,13 +97,13 @@ def run_from(max_steps, variables_to_collect, **options):
 
         return np.random.rand() < fail_prob
 
-    def resynthesize(i,j):
+    def resynthesize(Li,Lj):
         """
-        resynthesize strategy (after failure)
+        resynthesize strategy (after failure) for i j being lists of assms and guarts
 
         """
         nonlocal current_state, strategy_dict
-        synthesize_by_ij(i,j)
+        synthesize_by_Lij(Li,Lj)
         subprocess.run([parent_path + '/run', 'resyn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE) # synthesize strategy online
         # load new strategy
         strategy_dict = load_strategy()
@@ -118,11 +118,15 @@ def run_from(max_steps, variables_to_collect, **options):
 
     # initialize contract and starting state
     initialize()
+    print('synthesizing initial contract...')
     done = False
 
     while steps < max_steps:
-        if fail() and not done:
-            resynthesize(0,0)
+        print('simulating step ' + str(steps))
+        if steps > 100 and not done:
+            print('a failure has occurred!')
+            print('attempting to resolve failure...')
+            resynthesize([7],[3])
             done = True
         elif not stuck():
             cont()

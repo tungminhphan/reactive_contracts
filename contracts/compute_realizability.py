@@ -10,9 +10,9 @@ import subprocess
 import numpy as np
 import datetime
 if __name__ == '__main__':
-    from generate_AG import Ai, Gi, assumptions, guarantees
+    from generate_AG import Ai, Gi, assumptions, guarantees, conjoin_guarantees
 else:
-    from contracts.generate_AG import Ai, Gi, assumptions, guarantees
+    from contracts.generate_AG import Ai, Gi, assumptions, guarantees, conjoin_guarantees
 current_path = os.path.dirname(os.path.abspath(__file__)) # for abs path
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
 
@@ -54,11 +54,11 @@ def check_real(A, G):
     elif 'unrealizable' in real:
         return False, val
 
-def synthesize_by_ij(i, j):
+def synthesize_by_Lij(Li, Lj):
     """
-    This function creates (Ai[i],Gi[j]) (to be called by run script)
+    This function creates (Ai[i],Gi[j]). Li and Lj are lists of indices.
     """
-    synthesize_contract(Ai[i],Gi[j])
+    synthesize_contract(Ai[Li[0]], conjoin_guarantees(Lj))
 
 def check_all():
     """

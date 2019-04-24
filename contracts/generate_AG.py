@@ -113,7 +113,8 @@ def get_guarantees():
     """
     singleton version
     """
-    guarantees = [['r2_home'], ['r2_near'], ['r2_far'], ['box_near'],['box_far'],['box_r2_near'],['box_r2_far']]
+    guarantees = [['r2_home'], ['r2_near'], ['r2_far'],
+            ['box_near'],['box_far'],['box_r2_near'],['box_r2_far']]
     return guarantees
 
 def get_guarantees2():
@@ -146,5 +147,14 @@ def get_guarantees2():
                 guarantees.append(g)
     return guarantees
 
+def conjoin_guarantees(gList):
+    """
+    conjoin guarantees into a list containing guarantee indices
+
+    """
+    global Gi
+    return [Gi[i][0] for i in gList]
+
+# generate assumption and guarantee sets
 Ai = get_assumptions()
 Gi = get_guarantees()

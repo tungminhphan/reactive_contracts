@@ -9,7 +9,10 @@ import os, sys
 import subprocess
 import numpy as np
 import datetime
-from generate_AG import Ai, Gi, assumptions, guarantees
+if __name__ == '__main__':
+    from generate_AG import Ai, Gi, assumptions, guarantees
+else:
+    from contracts.generate_AG import Ai, Gi, assumptions, guarantees
 current_path = os.path.dirname(os.path.abspath(__file__)) # for abs path
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
 
@@ -77,10 +80,4 @@ def check_all():
             R['paired'][i][j] = True
             count += 1
             print('Progress: ' + str(round(count/float(total)*100,3)) + '%')
-            np.save('Real_' + now + '.npy', R)
-
-
-if len(sys.argv) > 1:
-    synthesize_by_ij(int(sys.argv[1]),int(sys.argv[2]))
-# run check_all() in this file to check all contract pairs from Ai x Gi
-# check_all()
+            np.save('contracts/Real_' + now + '.npy', R)

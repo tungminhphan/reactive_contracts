@@ -7,8 +7,7 @@ Automatic synthesis of reactive contracts and implementations
 1. Requirements: ***slugs***, ***sympy***, ***numpy***, ***graphviz***
 2. Update paths in the "run" script
 3. cd to source directory
-4. Execute ./run check 0 0
-5. Execute ./run
+4. Execute ./run
 
 ## License
 This is free software released under the terms of the BSD 3-Clause License

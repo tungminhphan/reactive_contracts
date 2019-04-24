@@ -12,26 +12,31 @@ input2=$dir/contracts/AG_contract
 
 if [ $# -gt 0 ]; then
 	if [ $1 = "check" ]; then
-		echo $dir
-                python3 $dir/contracts/compute_realizability.py $2 $3
+                python3 $dir/contracts/medium.py $2 $3
 		start=$(date +%s%N)
 		$parse_slugs $input2.structuredslugs > $input2.slugsin
 		$slugs --explicitStrategy $input2.slugsin > $input2.strat
 		end=$(date +%s%N)
 		runtime=$((end-start))
 		echo "Computed in $(($runtime/1000000000)) seconds"
-        elif [ $1 = "syn" ]; then
+        elif [ $1 = "syn" ]; then # for check all real rel
 		start=$(date +%s%N)
-		$parse_slugs $input.structuredslugs > $input.slugsin
-		$slugs --explicitStrategy $input.slugsin > $input.strat
+		$parse_slugs $input2.structuredslugs > $input2.slugsin
+		$slugs --explicitStrategy $input2.slugsin > $input2.strat
 		end=$(date +%s%N)
 		runtime=$((end-start))
 		echo "Computed in $(($runtime/1000000000)) seconds"
-        else
+        elif [ $1 = "resyn" ]; then # to resynthesize in the event of failure
+		start=$(date +%s%N)
+		$parse_slugs $input2.structuredslugs > $input2.slugsin
+		$slugs --explicitStrategy $input2.slugsin > $input2.strat
+		end=$(date +%s%N)
+		runtime=$((end-start))
+		echo "Computed in $(($runtime/1000000000)) seconds"
 		python3 $dir/helpers/strategy_parser.py $input2
-                python3 $dir/scenarios/three_islands.py $input2 $1
+        else
+                python3 $dir/scenarios/three_islands.py $input2 $1 # run with number of max time steps
 	fi
 else
-		python3 $dir/helpers/strategy_parser.py $input2
-                python3 $dir/scenarios/three_islands.py $input2 200
+                python3 $dir/scenarios/three_islands.py $input2 200 # run with default of 200 time steps
 fi

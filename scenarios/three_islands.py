@@ -142,16 +142,8 @@ def interpolate_run(run, N, exceptions):
 
 vars_to_collect = ['x1', 'y1', 'x2', 'y2', 'bridge', 'box']
 
-init_state = {
-        'x1': 0,
-        'y1': 1,
-        'x2': 0,
-        'y2': 0,
-        'box': 3
-        }
+run = simulator.run_from(max_steps=max_steps,variables_to_collect=vars_to_collect, init_contract = (7, 6))
 
-init_state = 'random'
-run = simulator.run_from(max_steps=max_steps,variables_to_collect=vars_to_collect, init_state=init_state)
 exceptions = {5}
 run = interpolate_run(run,10,exceptions)
 num_frames = len(run)

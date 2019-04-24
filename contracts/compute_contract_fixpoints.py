@@ -8,8 +8,9 @@ April 16, 2019
 """
 import os, sys
 import numpy as np
-from compute_refinement import assume_refine, guarantee_refine
-sys.path.append('..') # for import
+if __name__ == '__main__':
+    sys.path.append('..') # for import
+from contracts.compute_refinement import assume_refine, guarantee_refine
 from helpers.galois_connections import get_fixpoints
 from helpers.graph_algorithms import transitive_reduce
 from contracts.generate_AG import Ai, Gi, assumptions, guarantees
@@ -83,9 +84,9 @@ def print_instructions(R):
 
 def create_min_edge_list(R, A = None, empty = set(), AG = ''):
     """
-    input: R - a transitive reduced relation
-    input: A - an index list of assumes/guarantees
-    input: empty - list that should be "empty"
+    input: R     - a transitive reduced relation
+         : A     - an index list of assumes/guarantees
+         : empty - list that should be "empty"
     output: a list of edges induced by R
     """
     edges = []
@@ -234,36 +235,38 @@ def simp_guarantee_conjunct(Gset, Gvars):
         B = simplify_logic(B, force=True)
     return str(B)
 
-def make_contracts():
+def make_contracts(plot=False):
     A, G = process_fixpoints(contract_fixpoints)
 
     # guarantees
-    G_red, RG, empty = reduce_fixpoints(G,'guarantee')
+    G_red, RG, G_empty = reduce_fixpoints(G,'guarantee')
     Gvars = set()
     for g in Gi:
         Gvars = Gvars.union(set(g))
 
-    G_red_specs = []
-    for GI in G_red:
-        temp = simp_guarantee_conjunct(GI,Gvars)
-        G_red_specs.append(temp)
-
-    guarantee_edge_list = create_min_edge_list(RG, G_red_specs, empty)
-    convert_to_digraph(G_red, guarantee_edge_list,'□◇').render(filename='galois_guarantee', cleanup=True, view=True)
-
     # assumptions
-    A_red, RA, empty = reduce_fixpoints(A,'assume')
+    A_red, RA, A_empty = reduce_fixpoints(A,'assume')
     Avars = set()
     for a in Ai:
         Avars = Avars.union(set(a))
+#    edge_list = assume_edge_list + guarantee_edge_list
 
-    A_red_specs = []
-    for AI in A_red:
-        temp = simp_assume_disjunct(AI,Avars)
-        A_red_specs.append(temp)
+    # plotting
+    if plot == True:
+        # computation
+        G_red_specs = []
+        for GI in G_red:
+            temp = simp_guarantee_conjunct(GI,Gvars)
+            G_red_specs.append(temp)
+        guarantee_edge_list = create_min_edge_list(RG, G_red_specs, G_empty)
 
-    assume_edge_list = create_min_edge_list(RA, A_red_specs, empty)
-    convert_to_digraph(assume_edge_list,'').render(filename='galois_assume', cleanup=True, view=True)
-    edge_list = assume_edge_list + guarantee_edge_list
+        A_red_specs = []
+        for AI in A_red:
+            temp = simp_assume_disjunct(AI,Avars)
+            A_red_specs.append(temp)
+        assume_edge_list = create_min_edge_list(RA, A_red_specs, A_empty)
 
-make_contracts()
+        # showing
+        convert_to_digraph(G_red, guarantee_edge_list,'□◇').render(filename='galois_guarantee', cleanup=True, view=True)
+        convert_to_digraph(RA, assume_edge_list,'').render(filename='galois_assume', cleanup=True, view=True)
+    return A_red, G_red

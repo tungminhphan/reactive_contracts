@@ -117,14 +117,14 @@ def run_from(max_steps, variables_to_collect, **options):
     run = [] # trace to broadcast
 
     # initialize contract and starting state
+    print('synthesizing from initial contract...')
     initialize()
-    print('synthesizing initial contract...')
     done = False
 
     while steps < max_steps:
-        print('simulating step ' + str(steps))
+        print('simulating time step ' + str(steps))
         if steps > 100 and not done:
-            print('a failure has occurred!')
+            print('a failure has occurred at time step ' + str(steps) + '!')
             print('attempting to resolve failure...')
             resynthesize([7],[3])
             done = True

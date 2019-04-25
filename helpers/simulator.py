@@ -6,11 +6,12 @@ trace (of specified maximum length)
 """
 
 import sys, os
+import numpy as np
 import warnings
 import subprocess
 sys.path.append('..')
 from contracts.compute_realizability import synthesize_by_Lij
-import numpy as np
+from components import contract_controller
 current_path = os.path.dirname(os.path.abspath(__file__)) # for abs path
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
 
@@ -129,6 +130,7 @@ def run_from(max_steps, variables_to_collect, **options):
             resynthesize([7],[3])
             done = True
         elif not stuck():
+            print(strategy_dict[current_state])
             cont()
         else:
             break

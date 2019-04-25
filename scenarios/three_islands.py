@@ -142,7 +142,8 @@ def interpolate_run(run, N, exceptions):
 
 vars_to_collect = ['x1', 'y1', 'x2', 'y2', 'bridge', 'box']
 
-run = simulator.run_from(max_steps=max_steps,variables_to_collect=vars_to_collect, init_contract = ([7], [2, 5, 6]))
+run = simulator.run_from(max_steps=max_steps,variables_to_collect=vars_to_collect,
+        init_contract = ([7], [2, 5, 6]), init_fail = {})
 
 exceptions = {5}
 run = interpolate_run(run,10,exceptions)

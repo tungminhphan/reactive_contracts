@@ -19,7 +19,8 @@ from graphviz import Digraph
 from sympy import Symbol, simplify_logic
 
 data_num = 4
-real_rel = np.load(parent_path + '/data/real_rel' + str(data_num) + '.npy').item()['real_rel']
+real_rel = np.load(parent_path + '/data/real_rel' + str(data_num) +
+        '.npy', allow_pickle=True).item()['real_rel']
 contract_fixpoints = get_fixpoints(range(len(Ai)), range(len(Gi)), real_rel)
 
 def process_fixpoints(FP):

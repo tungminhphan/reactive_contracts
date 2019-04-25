@@ -20,16 +20,13 @@ from sympy import Symbol, simplify_logic
 
 data_num = 4
 real_rel = np.load(parent_path + '/data/real_rel' + str(data_num) + '.npy').item()['real_rel']
-refi_rel = np.load(parent_path + '/data/refi_rel' + str(data_num) + '.npy')
-
 contract_fixpoints = get_fixpoints(range(len(Ai)), range(len(Gi)), real_rel)
 
 def process_fixpoints(FP):
     """
-    Process Galois fixpoints
+    process Galois fixpoints
     input: FP - list of fixpoints
     output: two lists of fixpoints one for each domain
-
     """
     A = []
     G = []
@@ -42,7 +39,7 @@ def process_fixpoints(FP):
 def get_assume_poset(A):
     """
     input : A - a list of assumptions
-    output: R - an ordering relation
+    output: R - an ordering relation (non reflexive, not transistively reduced)
     """
     n = len(A)
     R = np.zeros((n,n),dtype=bool)
@@ -57,7 +54,7 @@ def get_assume_poset(A):
 def get_guarantee_poset(G):
     """
     input : G - a list of guarantees
-    output: R - an ordering relation
+    output: R - an ordering relation (non reflexive, not transistively reduced)
     """
     n = len(G)
     R = np.zeros((n,n),dtype=bool)
@@ -117,6 +114,9 @@ def create_min_edge_list(R, A = None, empty = set(), AG = ''):
     return edges
 
 def convert_to_digraph(node_list, edge_list, name):
+    """
+    this function converts a list of nodes and edges to a Digraph object
+    """
     poset = Digraph(format='svg')
 #    poset.attr('node', color='skyblue', style='filled')
     # adds transitions
@@ -135,18 +135,22 @@ def convert_to_digraph(node_list, edge_list, name):
 
 def reduce_fixpoints(B, AG = None): # B is either 'assume' or 'guarantee'
     """
-    input : A - a list of fixpoint assumptions
+    input : A - a list of fixpoint assumptions/guarantees
     output: A_red - a reduced list of fixpoint assumptions
-    output: RA - a reduced relation
+            RA - a reduced relation
+            empty - empty set (technicality)
+            R - ordering relation
     """
 
     B_red = []
     empty = set()
     if AG == 'assume':
-        RB = transitive_reduce(get_assume_poset(B))
+        R = get_assume_poset(B)
+        RB = transitive_reduce(R)
         RBc = RB
     elif AG == 'guarantee':
-        RB = transitive_reduce(get_guarantee_poset(B))
+        R = get_guarantee_poset(B)
+        RB = transitive_reduce(R)
         RBc = np.array(RB).transpose()
     for i in range(len(B)):
         overlap = set()
@@ -159,7 +163,7 @@ def reduce_fixpoints(B, AG = None): # B is either 'assume' or 'guarantee'
             empty.add(i)
         else:
             B_red.append(list(set(B[i]) - overlap))
-    return B_red, RB, empty
+    return B_red, RB, empty, R
 
 
 def simp_assume_disjunct(Aset, Avars):
@@ -236,16 +240,20 @@ def simp_guarantee_conjunct(Gset, Gvars):
     return str(B)
 
 def make_contracts(plot=False):
+    """
+    create simplified symbolic contract lattice (also returns "reachability"
+    graph for refinement)
+    """
     A, G = process_fixpoints(contract_fixpoints)
 
     # guarantees
-    G_red, RG, G_empty = reduce_fixpoints(G,'guarantee')
+    G_red, RG, G_empty, RG_full = reduce_fixpoints(G, 'guarantee')
     Gvars = set()
     for g in Gi:
         Gvars = Gvars.union(set(g))
 
     # assumptions
-    A_red, RA, A_empty = reduce_fixpoints(A,'assume')
+    A_red, RA, A_empty, RA_full = reduce_fixpoints(A,'assume')
     Avars = set()
     for a in Ai:
         Avars = Avars.union(set(a))
@@ -269,4 +277,6 @@ def make_contracts(plot=False):
         # showing
         convert_to_digraph(G_red, guarantee_edge_list,'□◇').render(filename='galois_guarantee', cleanup=True, view=True)
         convert_to_digraph(RA, assume_edge_list,'').render(filename='galois_assume', cleanup=True, view=True)
-    return A_red, G_red
+    if not np.array_equal(np.array(RA_full), np.array(RG_full)):
+        print('warning: galois connection calculation is not correct')
+    return A_red, G_red, RA_full

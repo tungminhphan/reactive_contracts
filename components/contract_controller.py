@@ -95,7 +95,7 @@ def principal_filter(base, full_rel, include_base = True):
         filter_.add(base)
     return filter_
 
-def principal_ideal(base, full_rel):
+def principal_ideal(base, full_rel, include_base = True):
     """
     compute the principal ideal of an element in a poset defined by full_rel
     """
@@ -110,9 +110,9 @@ def principal_ideal(base, full_rel):
 A = {'r1_near', 'r2_far', 'bridge', 'button1'}
 f = find_assume_fixpoint(A)
 
-#upper_set = principal_filter(f, R_full, False)
-#print(A)
-#print('original')
-#for j in upper_set:
-#    for i in A_red[j]:
-        print(Ai[i])
+upper_set = principal_filter(f, R_full, False)
+print(A)
+print('original')
+for j in upper_set:
+    for i in G_red[j]:
+        print(Gi[i])

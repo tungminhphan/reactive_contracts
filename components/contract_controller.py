@@ -107,14 +107,17 @@ def principal_ideal(base, full_rel = R_full, include_base = True):
         ideal_.add(base)
     return ideal_
 
-def greedy_controller(A):
+def greedy_controller(A, print_=False):
     i = find_assume_fixpoint(A)
-    all_guarts = set()
     PI = principal_ideal(i, R_full)
+    all_guarts = []
     for j in PI:
-        all_guarts.union(Ai[j])
-    return all_guarts
+        all_guarts = all_guarts + G_red[j]
+    if print_ == True:
+        for guart in all_guarts:
+            print(Gi[guart])
+    return set(all_guarts)
 
-A = {'r1_near', 'r2_far', 'bridge', 'button1'}
-
-print(greedy_controller(A))
+# test case
+#A = {'r1_far', 'r2_far', 'bridge', 'button2'}
+#print(greedy_controller(A))

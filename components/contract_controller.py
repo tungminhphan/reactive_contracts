@@ -83,36 +83,38 @@ def find_assume_fixpoint(assm):
         if set(assm_idx) <= set(A_red[i]):
             return i
 
-def principal_filter(base, full_rel, include_base = True):
+def principal_filter(base, full_rel = R_full, include_base = True):
     """
     compute the principle filter of an element in a poset defined by full_rel
     """
     filter_ = set()
     for j in range(full_rel.shape[1]):
-        if full_rel[base][j]:
+        if full_rel[j][base]:
             filter_.add(j)
     if include_base:
         filter_.add(base)
     return filter_
 
-def principal_ideal(base, full_rel, include_base = True):
+def principal_ideal(base, full_rel = R_full, include_base = True):
     """
     compute the principal ideal of an element in a poset defined by full_rel
     """
     ideal_ = set()
     for j in range(full_rel.shape[1]):
-        if full_rel[j][base]:
+        if full_rel[base][j]:
             ideal_.add(j)
     if include_base:
         ideal_.add(base)
     return ideal_
 
-A = {'r1_near', 'r2_far', 'bridge', 'button1'}
-f = find_assume_fixpoint(A)
+def greedy_controller(A):
+    i = find_assume_fixpoint(A)
+    all_guarts = set()
+    PI = principal_ideal(i, R_full)
+    for j in PI:
+        all_guarts.union(Ai[j])
+    return all_guarts
 
-upper_set = principal_filter(f, R_full, False)
-print(A)
-print('original')
-for j in upper_set:
-    for i in G_red[j]:
-        print(Gi[i])
+A = {'r1_near', 'r2_far', 'bridge', 'button1'}
+
+print(greedy_controller(A))

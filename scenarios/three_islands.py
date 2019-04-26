@@ -142,8 +142,11 @@ def interpolate_run(run, N, exceptions):
 
 vars_to_collect = ['x1', 'y1', 'x2', 'y2', 'bridge', 'box']
 
+
+start_state = {'x1': 0, 'y1': 1, 'x2': 1, 'y2': 1}
+start_guarantee = {'box_r2_near'}
 run = simulator.run_from(max_steps=max_steps,variables_to_collect=vars_to_collect,
-        init_contract = ([7], [2, 5, 6]), init_fail = {})
+        init_contract = (start_state, start_guarantee), init_fail = dict(), controller='greedy')
 
 exceptions = {5}
 run = interpolate_run(run,10,exceptions)
@@ -198,12 +201,12 @@ def animate(i):
         pack.xy = (4*w+w/3,3*h+h/7)
     return drawbridge, ego, ego2, pack, button1, button2
 
-save_video = False
-ani = animation.FuncAnimation(fig, animate, frames=num_frames,
-        interval=20, blit=True, repeat=False)
+save_video = True
+ani = animation.FuncAnimation(fig, animate, frames=num_frames, interval=20,
+        blit=True, repeat=False)
 if save_video:
     Writer = animation.writers['ffmpeg']
     writer = Writer(fps = 30, metadata=dict(artist='Gridworld Simulator'), bitrate=-1)
     now = 'gr1'
-    ani.save('../movies/' + now + '.avi', dpi=200)
+    ani.save('movies/' + now + '.avi', dpi=200)
 plt.show()

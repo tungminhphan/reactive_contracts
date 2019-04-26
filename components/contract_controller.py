@@ -113,11 +113,13 @@ def greedy_controller(A, print_=False):
     all_guarts = []
     for j in PI:
         all_guarts = all_guarts + G_red[j]
-    if print_ == True:
-        for guart in all_guarts:
-            print(Gi[guart])
-    return set(all_guarts)
+    guarantees = []
+    for guart in set(all_guarts):
+        guarantees.append(Gi[guart][0])
+        if print_ == True:
+            print(Gi[guart][0])
+    return guarantees
 
 # test case
-#A = {'r1_far', 'r2_far', 'bridge', 'button2'}
-#print(greedy_controller(A))
+# A = {'r1_far', 'r2_far', 'bridge', 'button2'}
+# print(greedy_controller(A))

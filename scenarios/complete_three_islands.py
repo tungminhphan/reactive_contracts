@@ -16,8 +16,9 @@ from matplotlib.patches import Rectangle, Circle, RegularPolygon, Shadow
 import matplotlib as mpl
 from PIL import Image
 
-fig = plt.figure()
+fig = plt.figure(figsize=(3,3))
 ax = fig.add_axes([0,0,1,1]) # get rid of white border
+ax.set_axis_off()
 plt.axis('equal')
 
 N = 5 # NxN gridworld
@@ -37,9 +38,12 @@ robot2_path = parent_path + '/imglib/walker4.png'
 factory1_path = parent_path + '/imglib/silver_plate.png'
 factory2_path = parent_path + '/imglib/gold_plate.png'
 bridge_path = parent_path + '/imglib/bridge1.png'
+broken_bridge_path = parent_path + '/imglib/broken_bridge.png'
 draw_bridge_path = parent_path + '/imglib/bridge3.png'
 button1_path = parent_path + '/imglib/buttons.png'
+broken_button1_path = parent_path + '/imglib/broken_buttons.png'
 button2_path = parent_path + '/imglib/buttons.png'
+broken_button2_path = parent_path + '/imglib/broken_buttons.png'
 
 
 # load image files
@@ -86,7 +90,11 @@ def add_factory2():
     add_to_scene(factory2, (x,y))
 
 def add_bridge():
-    global bridge
+    global bridge, fails, step
+    if 'bridge' in fails[step]:
+        bridge = Image.open(broken_bridge_path)
+    else:
+        bridge = Image.open(bridge_path)
     x, y = grid_to_coords((2,4))
     add_to_scene(bridge, (x,y))
 
@@ -163,6 +171,11 @@ def to_facing_dir(thing):
 def add_button1():
     global button1_film, step
 
+    if 'button1' in fails[step]:
+        button1_film = Image.open(broken_button1_path)
+    else:
+        button1_film = Image.open(button1_path)
+
     film_fig = button1_film
     film_grid_dim = [1, 2]
     x, y = grid_to_coords((0,1))
@@ -189,6 +202,11 @@ def add_button1():
 
 def add_button2():
     global button2_film, step
+
+    if 'button2' in fails[step]:
+        button2_film = Image.open(broken_button2_path)
+    else:
+        button2_film = Image.open(button2_path)
 
     film_fig = button2_film
     film_grid_dim = [1, 2]
@@ -346,7 +364,8 @@ def to_prog(frame):
 #        init_contract = (start_state, start_guarantee), init_fail = dict(), controller='greedy')
 #run = [[0,0], [0,0], [1,0], [1, 1], [2,1], [2,2], [2,2],[2,3],[3,3],[3,4], [3,3],[2,3],[1,3],[1,2],[1,1],[0,1],[0,0]]
 run = np.load('../run.npy')
-frames_per_step = 25
+fails = np.load('../fails.npy')
+frames_per_step = 15
 
 step = 0 # simulation step
 prog = 0 # step progress
@@ -381,7 +400,7 @@ ani = animation.FuncAnimation(fig, animate, frames=num_frames, interval=30,  bli
 if save_video:
     Writer = animation.writers['ffmpeg']
     writer = Writer(fps = 30, bitrate=-1)
-    now = 'reactive2'
+    now = 'reactive3'
     ani.save('../movies/' + now + '.avi', dpi=200)
 if not save_video:
     plt.show()

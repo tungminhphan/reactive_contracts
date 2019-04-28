@@ -63,6 +63,7 @@ def run_from(max_steps, variables_to_collect, **options):
         else:
             init_state, guart = options['init_contract']
             failures = options['init_fail']
+            fails.append(failures)
             assm = contract_controller.to_assumption(init_state, failures)
             synthesize_contract(assm, guart)
             subprocess.run([parent_path + '/run', 'resyn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE) # synthesize strategy online
@@ -86,6 +87,7 @@ def run_from(max_steps, variables_to_collect, **options):
         next_states = strategy_dict[current_state_id]['successors']
         current_state_id = np.random.choice(tuple(next_states))
         collect()
+        fails.append(fails[-1])
 
     def stuck():
         """
@@ -144,12 +146,14 @@ def run_from(max_steps, variables_to_collect, **options):
         nonlocal current_state_id
         global strategy_dict
         init_state, guart = options['init_contract']
-        failures = options['init_fail']
         assm = contract_controller.to_assumption(init_state, failures)
         if controller == 'greedy':
             guart = list(contract_controller.greedy_controller(assm))
+        print(assm)
+        print(guart)
         synthesize_contract(assm,guart)
-        subprocess.run([parent_path + '/run', 'resyn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE) # synthesize strategy online
+        subprocess.run([parent_path + '/run', 'resyn']) # synthesize strategy online
+        #subprocess.run([parent_path + '/run', 'resyn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE) # synthesize strategy online
         # load new strategy
         current_state = strategy_dict[current_state_id]
         load_strategy()
@@ -160,6 +164,7 @@ def run_from(max_steps, variables_to_collect, **options):
     steps = 0
     current_state_id = None
     run = [] # trace to broadcast
+    fails = [] # failure trace
 
     # initialize contract and starting state
     print('synthesizing from initial contract...')
@@ -172,10 +177,12 @@ def run_from(max_steps, variables_to_collect, **options):
             failure = np.random.choice(['bridge', 'button1', 'button2'])
             print(failure + ' has failed at time step ' + str(steps) + '!')
             print('attempting to resolve failure...')
+            failure = set([failure])
+            fails.append(failure)
             react_to(failure)
             done = True
         elif not stuck():
             cont()
         else:
             break
-    return run
+    return run, fails

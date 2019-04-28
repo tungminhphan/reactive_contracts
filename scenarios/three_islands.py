@@ -144,11 +144,12 @@ vars_to_collect = ['x1', 'y1', 'x2', 'y2', 'bridge', 'box']
 
 
 start_state = {'x1': 0, 'y1': 1, 'x2': 1, 'y2': 1}
-start_guarantee = {'box_r2_near'}
-run = simulator.run_from(max_steps=max_steps,variables_to_collect=vars_to_collect,
-        init_contract = (start_state, start_guarantee), init_fail = dict(), controller='greedy')
+start_guarantee = {'box_r2_near', 'box_r2_far'}
+run, fails = simulator.run_from(max_steps=max_steps,variables_to_collect=vars_to_collect,
+        init_contract = (start_state, start_guarantee), init_fail = set(), controller='greedy')
 
 np.save('run.npy', run)
+np.save('fails.npy', fails)
 
 exceptions = {5}
 run = interpolate_run(run,10,exceptions)

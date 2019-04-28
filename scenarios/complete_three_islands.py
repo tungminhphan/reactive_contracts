@@ -37,7 +37,9 @@ robot2_path = parent_path + '/imglib/walker4.png'
 factory1_path = parent_path + '/imglib/silver_plate.png'
 factory2_path = parent_path + '/imglib/gold_plate.png'
 bridge_path = parent_path + '/imglib/bridge1.png'
-draw_bridge_path = parent_path + '/imglib/draw_bridge.png'
+draw_bridge_path = parent_path + '/imglib/bridge3.png'
+button1_path = parent_path + '/imglib/buttons.png'
+button2_path = parent_path + '/imglib/buttons.png'
 
 
 # load image files
@@ -51,6 +53,8 @@ factory1 = Image.open(factory1_path)
 factory2 = Image.open(factory2_path)
 bridge = Image.open(bridge_path)
 draw_bridge = Image.open(draw_bridge_path)
+button1_film = Image.open(button1_path)
+button2_film = Image.open(button2_path)
 
 def add_to_scene(fig, xy):
     """
@@ -89,7 +93,10 @@ def add_bridge():
 def add_draw_bridge():
     global draw_bridge
     x, y = grid_to_coords((1,2))
-    add_to_scene(draw_bridge, (x,y))
+    xy_r1 = get_data('robot1')[step]
+    xy_r2 = get_data('robot2')[step]
+    if xy_r1 == [0,1] or xy_r2 == [0,1] or xy_r1 == [0, 3] or xy_r2 == [0,3]:
+        add_to_scene(draw_bridge, (x,y))
 
 def reset_background():
     global background
@@ -152,12 +159,67 @@ def to_facing_dir(thing):
             return 'w'
     return 'rest'
 
+def add_button1():
+    global button1_film, step
+
+    film_fig = button1_film
+    film_grid_dim = [1, 2]
+    x, y = grid_to_coords((0,1))
+    scale_factor = 0.25
+    film_fig = film_fig.resize(tuple([int(scale_factor * k) for k in film_fig.size])) # rescaling
+
+    j = 0
+    # current positions of the robots
+    xy_r1 = get_data('robot1')[step]
+    xy_r2 = get_data('robot2')[step]
+    if xy_r1 == [0,1] or xy_r2 == [0,1]:
+        i = 1
+    else:
+        i = 0
+    width, height = film_fig.size
+    sub_height = height / film_grid_dim[0]
+    sub_width = width / film_grid_dim[1]
+    lower = ((i % film_grid_dim[1]) * sub_width, j * sub_height)
+    upper = (((i % film_grid_dim[1])+1) * sub_width, (j+1) * sub_height)
+    crop_area = (int(lower[0]), int(lower[1]), int(upper[0]), int(upper[1]))
+    button_fig = film_fig.crop(crop_area)
+    ax.imshow(button_fig)
+    add_to_scene(button_fig, (x, y))
+
+def add_button2():
+    global button2_film, step
+
+    film_fig = button2_film
+    film_grid_dim = [1, 2]
+    x, y = grid_to_coords((0,3))
+    scale_factor = 0.25
+    film_fig = film_fig.resize(tuple([int(scale_factor * k) for k in film_fig.size])) # rescaling
+
+    j = 0
+    # current positions of the robots
+    xy_r1 = get_data('robot1')[step]
+    xy_r2 = get_data('robot2')[step]
+    if xy_r1 == [0,3] or xy_r2 == [0,3]:
+        i = 1
+    else:
+        i = 0
+
+    width, height = film_fig.size
+    sub_height = height / film_grid_dim[0]
+    sub_width = width / film_grid_dim[1]
+    lower = ((i % film_grid_dim[1]) * sub_width, j * sub_height)
+    upper = (((i % film_grid_dim[1])+1) * sub_width, (j+1) * sub_height)
+    crop_area = (int(lower[0]), int(lower[1]), int(upper[0]), int(upper[1]))
+    button_fig = film_fig.crop(crop_area)
+    ax.imshow(button_fig)
+    add_to_scene(button_fig, (x, y))
+
 def add_robot1b():
     global robot1b_film, run, prog
 
+    film_fig = robot1b_film
     film_grid_dim = [8, 16]
     x,y = to_xy('robot1b')
-    film_fig = robot1b_film
     scale_factor = 2
     film_fig = film_fig.resize(tuple([int(scale_factor * k) for k in film_fig.size])) # rescaling
 
@@ -283,10 +345,11 @@ def to_prog(frame):
 #        init_contract = (start_state, start_guarantee), init_fail = dict(), controller='greedy')
 #run = [[0,0], [0,0], [1,0], [1, 1], [2,1], [2,2], [2,2],[2,3],[3,3],[3,4], [3,3],[2,3],[1,3],[1,2],[1,1],[0,1],[0,0]]
 run = np.load('../run.npy')
-frames_per_step = 2
+frames_per_step = 5
 
 step = 0 # simulation step
 prog = 0 # step progress
+
 def animate(frame):
     global print_frames, step, prog
     if print_frames:
@@ -297,6 +360,8 @@ def animate(frame):
 
     reset_background() # clear background
     add_crates()
+    add_button1()
+    add_button2()
     add_factory1()
     add_factory2()
     add_bridge()
@@ -305,18 +370,17 @@ def animate(frame):
     add_robot2()
     add_robot1b()
 
-
     stage = ax.imshow(background, origin='lower')
     reset_background() # clear background
     return stage,
 
-save_video = True
+save_video = False
 print_frames = save_video
 num_frames = len(run) * frames_per_step
-ani = animation.FuncAnimation(fig, animate, frames=num_frames, interval=1,  blit=True, repeat=False)
+ani = animation.FuncAnimation(fig, animate, frames=num_frames, interval=1,  blit = True, repeat = False)
 if save_video:
     Writer = animation.writers['ffmpeg']
     writer = Writer(fps = 30, bitrate=-1)
     now = 'complete'
-    ani.save('../movies/' + now + '.avi', dpi=200)
+    ani.save('../movies/' + now + '.avi', dpi=50)
 plt.show()

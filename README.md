@@ -18,8 +18,9 @@ copying conditions. <br />
 When code is modified or re-distributed, the LICENSE file should accompany the
 code or any subset of it, however small.  As an alternative, the LICENSE text
 can be copied within files, if so desired. <br />
-
+https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/connexions/assume.png
 ## An example of an automatically generated reactive GR(1) contract
 ![assume](https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/connexions/assume.png)
 ![guarantee](https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/connexions/guarantee.png)
+![demo](https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/movies/reactive.gif)
 

@@ -38,5 +38,5 @@ if [ $# -gt 0 ]; then
                 python3 $dir/scenarios/three_islands.py $input2 $1 # run with number of max time steps
 	fi
 else
-                python3 $dir/scenarios/three_islands.py $input2 200 # run with default of 200 time steps
+                python3 $dir/scenarios/three_islands.py $input2 100 # run with default of 200 time steps
 fi

@@ -32,7 +32,7 @@ background_path = parent_path + '/imglib/three_islands.png'
 crate_path = parent_path + '/imglib/crate.png'
 crates_path = parent_path + '/imglib/black_plate.png'
 robot1_path = parent_path + '/imglib/disc.png'
-robot1b_path = parent_path + '/imglib/walker3.png'
+robot1b_path = parent_path + '/imglib/walker7.png'
 robot2_path = parent_path + '/imglib/walker4.png'
 factory1_path = parent_path + '/imglib/silver_plate.png'
 factory2_path = parent_path + '/imglib/gold_plate.png'
@@ -99,7 +99,8 @@ def add_draw_bridge():
         add_to_scene(draw_bridge, (x,y))
 
 def reset_background():
-    global background
+    global background, ax
+    ax.cla() # very important for speeding up saving
     background.close()
     background = Image.open(background_path).transpose(Image.FLIP_TOP_BOTTOM)
 
@@ -345,7 +346,7 @@ def to_prog(frame):
 #        init_contract = (start_state, start_guarantee), init_fail = dict(), controller='greedy')
 #run = [[0,0], [0,0], [1,0], [1, 1], [2,1], [2,2], [2,2],[2,3],[3,3],[3,4], [3,3],[2,3],[1,3],[1,2],[1,1],[0,1],[0,0]]
 run = np.load('../run.npy')
-frames_per_step = 5
+frames_per_step = 25
 
 step = 0 # simulation step
 prog = 0 # step progress
@@ -371,16 +372,16 @@ def animate(frame):
     add_robot1b()
 
     stage = ax.imshow(background, origin='lower')
-    reset_background() # clear background
     return stage,
 
-save_video = False
+save_video = True
 print_frames = save_video
 num_frames = len(run) * frames_per_step
-ani = animation.FuncAnimation(fig, animate, frames=num_frames, interval=1,  blit = True, repeat = False)
+ani = animation.FuncAnimation(fig, animate, frames=num_frames, interval=30,  blit = True, repeat = False)
 if save_video:
     Writer = animation.writers['ffmpeg']
     writer = Writer(fps = 30, bitrate=-1)
-    now = 'complete'
-    ani.save('../movies/' + now + '.avi', dpi=50)
-plt.show()
+    now = 'reactive1'
+    ani.save('../movies/' + now + '.avi', dpi=200)
+if not save_video:
+    plt.show()

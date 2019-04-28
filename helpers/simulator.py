@@ -168,7 +168,7 @@ def run_from(max_steps, variables_to_collect, **options):
 
     while steps < max_steps:
         print('simulating time step ' + str(steps))
-        if steps > 100 and not done:
+        if steps > 50 and not done:
             failure = np.random.choice(['bridge', 'button1', 'button2'])
             print(failure + ' has failed at time step ' + str(steps) + '!')
             print('attempting to resolve failure...')

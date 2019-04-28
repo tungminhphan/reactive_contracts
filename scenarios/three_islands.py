@@ -148,6 +148,8 @@ start_guarantee = {'box_r2_near'}
 run = simulator.run_from(max_steps=max_steps,variables_to_collect=vars_to_collect,
         init_contract = (start_state, start_guarantee), init_fail = dict(), controller='greedy')
 
+np.save('run.npy', run)
+
 exceptions = {5}
 run = interpolate_run(run,10,exceptions)
 num_frames = len(run)
@@ -201,7 +203,7 @@ def animate(i):
         pack.xy = (4*w+w/3,3*h+h/7)
     return drawbridge, ego, ego2, pack, button1, button2
 
-save_video = True
+save_video = False
 ani = animation.FuncAnimation(fig, animate, frames=num_frames, interval=20,
         blit=True, repeat=False)
 if save_video:

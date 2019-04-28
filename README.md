@@ -22,5 +22,5 @@ https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/connexi
 ## An example of an automatically generated reactive GR(1) contract
 ![assume](https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/connexions/assume.png)
 ![guarantee](https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/connexions/guarantee.png)
-![demo](https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/movies/reactive.gif)
+![demo](https://github.com/tungminhphan/reactive_contracts/blob/master/movies/reactive.gif)
 

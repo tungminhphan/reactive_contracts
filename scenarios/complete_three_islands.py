@@ -381,7 +381,7 @@ ani = animation.FuncAnimation(fig, animate, frames=num_frames, interval=30,  bli
 if save_video:
     Writer = animation.writers['ffmpeg']
     writer = Writer(fps = 30, bitrate=-1)
-    now = 'reactive1'
+    now = 'reactive2'
     ani.save('../movies/' + now + '.avi', dpi=200)
 if not save_video:
     plt.show()

@@ -145,12 +145,11 @@ def run_from(max_steps, variables_to_collect, **options):
         """
         nonlocal current_state_id
         global strategy_dict
-        init_state, guart = options['init_contract']
+        #init_state, guart = options['init_contract']
+        init_state = strategy_dict[current_state_id]
         assm = contract_controller.to_assumption(init_state, failures)
         if controller == 'greedy':
             guart = list(contract_controller.greedy_controller(assm))
-        print(assm)
-        print(guart)
         synthesize_contract(assm,guart)
         subprocess.run([parent_path + '/run', 'resyn']) # synthesize strategy online
         #subprocess.run([parent_path + '/run', 'resyn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE) # synthesize strategy online
@@ -173,7 +172,15 @@ def run_from(max_steps, variables_to_collect, **options):
 
     while steps < max_steps:
         print('simulating time step ' + str(steps))
-        if steps > 50 and not done:
+        current_state = strategy_dict[current_state_id]
+        x1 = current_state['x1']
+        y1 = current_state['y1']
+        x2 = current_state['x2']
+        y2 = current_state['y2']
+        bad1 = (x1 == 1 and y1 == 2) or (x2 == 1 and y2 ==2)
+        bad2 = (x1 == 2 and y1 == 4) or (x2 == 2 and y2 ==4)
+        ok = not (bad1 or bad2)
+        if steps > 50 and not done and ok:
             failure = np.random.choice(['bridge', 'button1', 'button2'])
             print(failure + ' has failed at time step ' + str(steps) + '!')
             print('attempting to resolve failure...')

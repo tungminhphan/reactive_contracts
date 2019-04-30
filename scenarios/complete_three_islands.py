@@ -16,7 +16,7 @@ from matplotlib.patches import Rectangle, Circle, RegularPolygon, Shadow
 import matplotlib as mpl
 from PIL import Image
 
-fig = plt.figure(figsize=(3,3))
+fig = plt.figure(figsize=(10,10))
 ax = fig.add_axes([0,0,1,1]) # get rid of white border
 ax.set_axis_off()
 plt.axis('equal')
@@ -363,8 +363,8 @@ def to_prog(frame):
 #run = simulator.run_from(max_steps=max_steps,variables_to_collect=vars_to_collect,
 #        init_contract = (start_state, start_guarantee), init_fail = dict(), controller='greedy')
 #run = [[0,0], [0,0], [1,0], [1, 1], [2,1], [2,2], [2,2],[2,3],[3,3],[3,4], [3,3],[2,3],[1,3],[1,2],[1,1],[0,1],[0,0]]
-run = np.load('../run.npy')
-fails = np.load('../fails.npy')
+run = np.load('../run.npy', allow_pickle=True)
+fails = np.load('../fails.npy', allow_pickle=True)
 frames_per_step = 15
 
 step = 0 # simulation step
@@ -393,14 +393,14 @@ def animate(frame):
     stage = ax.imshow(background, origin='lower')
     return stage,
 
-save_video = True
+save_video = False
 print_frames = save_video
 num_frames = len(run) * frames_per_step
 ani = animation.FuncAnimation(fig, animate, frames=num_frames, interval=30,  blit = True, repeat = False)
 if save_video:
     Writer = animation.writers['ffmpeg']
     writer = Writer(fps = 30, bitrate=-1)
-    now = 'reactive3'
+    now = 'reactive4'
     ani.save('../movies/' + now + '.avi', dpi=200)
 if not save_video:
     plt.show()

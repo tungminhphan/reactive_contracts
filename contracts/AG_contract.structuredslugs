@@ -97,26 +97,17 @@ box!=2
 [ENV_INIT]
 x1!=x2 | y1!=y2
 
-[SYS_TRANS]
-# far bridge is
-!(x1=2 & y1=4)
-!(x2=2 & y2=4)
+[ENV_TRANS]
+# button1 behavior
+((x1 = 0 & y1 = 1) | (x2 = 0 & y2 = 1)) -> bridge'
+
+[ENV_INIT]
+x2<=1
+y2>=3
 
 [ENV_INIT]
 x1<=2
 y1<=1
-
-[ENV_TRANS]
-# button2 behavior
-((x1=0 & y1=3) | (x2=0 & y2=3)) -> bridge'
-
-[ENV_INIT]
-x2<=2
-y2<=1
-
-[ENV_TRANS]
-# button1 behavior
-((x1 = 0 & y1 = 1) | (x2 = 0 & y2 = 1)) -> bridge'
 
 [SYS_LIVENESS]
 x2=2 & y2=0
@@ -125,7 +116,10 @@ x2=2 & y2=0
 x2=0 & y2=4
 
 [SYS_LIVENESS]
+x2 = 4 & y2 =3
+
+[SYS_LIVENESS]
 box=2
 
 [SYS_LIVENESS]
-x2=0 & y2=4 & box=2
+box=3

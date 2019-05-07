@@ -158,3 +158,5 @@ def conjoin_guarantees(gList):
 # generate assumption and guarantee sets
 Ai = get_assumptions()
 Gi = get_guarantees()
+
+# assuming that bridges don't fail while robots are crossing

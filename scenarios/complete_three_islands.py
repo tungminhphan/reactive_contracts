@@ -99,11 +99,21 @@ def add_bridge():
     add_to_scene(bridge, (x,y))
 
 def add_draw_bridge():
-    global draw_bridge
+    global draw_bridge, fails
     x, y = grid_to_coords((1,2))
     xy_r1 = get_data('robot1')[step]
     xy_r2 = get_data('robot2')[step]
-    if xy_r1 == [0,1] or xy_r2 == [0,1] or xy_r1 == [0, 3] or xy_r2 == [0,3]:
+    button1_stepped = xy_r1 == [0,1] or xy_r2 == [0,1]
+    button2_stepped = xy_r1 == [0,3] or xy_r2 == [0,3]
+    if step > 0:
+        # check stepped for last time step (animation techicality)
+        xy_r1 = get_data('robot1')[step-1]
+        xy_r2 = get_data('robot2')[step-1]
+        button1_stepped = button1_stepped or (xy_r1 == [0,1] or xy_r2 == [0,1])
+        button2_stepped = button2_stepped or (xy_r1 == [0,3] or xy_r2 == [0,3])
+    button1_ok =  not ('button1' in fails)
+    button2_ok = not ('button2' in fails)
+    if (button1_ok and button1_stepped) or (button2_ok and button2_stepped):
         add_to_scene(draw_bridge, (x,y))
 
 def reset_background():
@@ -400,7 +410,7 @@ ani = animation.FuncAnimation(fig, animate, frames=num_frames, interval=30,  bli
 if save_video:
     Writer = animation.writers['ffmpeg']
     writer = Writer(fps = 30, bitrate=-1)
-    now = 'reactive4'
+    now = 'reactive_new'
     ani.save('../movies/' + now + '.avi', dpi=200)
 if not save_video:
     plt.show()

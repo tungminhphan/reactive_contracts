@@ -118,8 +118,9 @@ def convert_to_digraph(node_list, edge_list, name):
     """
     this function converts a list of nodes and edges to a Digraph object
     """
-    poset = Digraph(format='svg')
+    poset = Digraph(format='dot')
 #    poset.attr('node', color='skyblue', style='filled')
+    poset.attr('node', shape='rectangle')
     # adds transitions
     for trans in edge_list:
         state1, state2 = trans

@@ -16,6 +16,7 @@ current_path = os.path.dirname(os.path.abspath(__file__)) # for abs path
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..")) # for abs path
 
 strategy_dict = dict() # initialize strategy
+np.random.seed(4)
 
 def load_strategy():
     global strategy_dict
@@ -170,6 +171,8 @@ def run_from(max_steps, variables_to_collect, **options):
     initialize()
     done = False
 
+    all_failures = ['bridge', 'button1', 'button2']
+    pending_failures = ['bridge', 'button1', 'button2']
     while steps < max_steps:
         print('simulating time step ' + str(steps))
         current_state = strategy_dict[current_state_id]
@@ -180,14 +183,14 @@ def run_from(max_steps, variables_to_collect, **options):
         bad1 = (x1 == 1 and y1 == 2) or (x2 == 1 and y2 ==2)
         bad2 = (x1 == 2 and y1 == 4) or (x2 == 2 and y2 ==4)
         ok = not (bad1 or bad2)
-        if steps > 50 and not done and ok:
-            failure = np.random.choice(['bridge', 'button1', 'button2'])
+        if steps > 55 and ok and np.random.uniform() > 0.97 and len(pending_failures) > 0:
+            failure = np.random.choice(pending_failures)
+            pending_failures.remove(failure)
             print(failure + ' has failed at time step ' + str(steps) + '!')
             print('attempting to resolve failure...')
-            failure = set([failure])
-            fails.append(failure)
-            react_to(failure)
-            done = True
+            curr_failures = set(all_failures)-set(pending_failures)
+            fails.append(curr_failures)
+            react_to(curr_failures)
         elif not stuck():
             cont()
         else:

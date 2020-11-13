@@ -20,6 +20,7 @@ def to_assumption(concrete_state, failures):
     assm = set(instructions((concrete_state['x1'],
         concrete_state['y1']),(concrete_state['x2'], concrete_state['y2'])) +
         DELTA)
+#    import pdb; pdb.set_trace()
     return set(assm) - set(failures)
 
 def analyze_assumption(assm):

@@ -375,7 +375,7 @@ def to_prog(frame):
 #run = [[0,0], [0,0], [1,0], [1, 1], [2,1], [2,2], [2,2],[2,3],[3,3],[3,4], [3,3],[2,3],[1,3],[1,2],[1,1],[0,1],[0,0]]
 run = np.load('../run.npy', allow_pickle=True)
 fails = np.load('../fails.npy', allow_pickle=True)
-frames_per_step = 15
+frames_per_step = 10
 
 step = 0 # simulation step
 prog = 0 # step progress
@@ -403,14 +403,14 @@ def animate(frame):
     stage = ax.imshow(background, origin='lower')
     return stage,
 
-save_video = False
+save_video = True
 print_frames = save_video
 num_frames = len(run) * frames_per_step
 ani = animation.FuncAnimation(fig, animate, frames=num_frames, interval=30,  blit = True, repeat = False)
 if save_video:
     Writer = animation.writers['ffmpeg']
     writer = Writer(fps = 30, bitrate=-1)
-    now = 'reactive_new'
-    ani.save('../movies/' + now + '.avi', dpi=200)
+    now = 'paper'
+    ani.save('../movies/' + now + '.avi', dpi=100)
 if not save_video:
     plt.show()

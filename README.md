@@ -7,7 +7,7 @@ Automatic synthesis of reactive contracts and implementations
 1. Requirements: ***slugs***, ***sympy***, ***numpy***, ***graphviz***
 2. Update paths in the "run" script
 3. cd to source directory
-4. Execute `./run [number of steps]` to run a random simulation for N
+4. Execute `./run N` to run a random simulation for N (integer)
    time steps.
 5. Execute `python complete_three_islands.py` to generate a clean
    animation from the simulation trace.
@@ -25,5 +25,5 @@ https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/connexi
 ## An example of an automatically generated reactive GR(1) contract
 ![assume](https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/connexions/assume.png)
 ![guarantee](https://github.com/tungminhphan/reactive_contracts/blob/master/contracts/connexions/guarantee.png)
-![demo](https://github.com/tungminhphan/reactive_contracts/blob/master/movies/buttons_list.gif)
+![demo](https://github.com/tungminhphan/reactive_contracts/blob/master/movies/buttons_lost.gif)
 
